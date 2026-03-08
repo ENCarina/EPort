@@ -21,8 +21,9 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, secretKey);
+        req.user = decoded;
         req.userId = decoded.id;
-        console.log("TOKEN OK! Felhasználó ID:", decoded.id);
+        console.log("TOKEN OK! Felhasználó ID:", decoded.id, "Role:", decoded.roleId);
         next();
     } catch (err) {
         console.log("Katasztrófa a verify alatt:", err.message);

@@ -8,6 +8,7 @@ import StaffController from '../controllers/staffController.js';
 import BookingController from '../controllers/bookingController.js';
 import SlotController from '../controllers/slotController.js';
 import ConsultationController from '../controllers/consultationController.js';
+import ProfileController from '../controllers/profileController.js';
  
 router.post('/register', AuthController.register)
 router.post('/login', AuthController.login)
@@ -21,6 +22,10 @@ router.get('/staff/:id', StaffController.show);
 router.post('/staff', [verifyToken], StaffController.store);
 router.put('/staff/:id', [verifyToken], StaffController.update);
 router.delete('/staff/:id', [verifyToken], StaffController.destroy);
+
+// --- PUBLIKUS PROFILOK (Pácienseknek nézelődéshez) ---
+router.get('/profiles', ProfileController.index);
+router.get('/profiles/:id', ProfileController.show);
 
 router.get('/consultations', [verifyToken], ConsultationController.index);
 router.get('/consultations/:id', [verifyToken], ConsultationController.show);
@@ -36,6 +41,7 @@ router.delete('/slots/:id', [verifyToken], SlotController.destroy);
 
 router.get('/bookings', [verifyToken], BookingController.index);
 router.get('/bookings/:id', BookingController.show);
+//router.get('/my-bookings', [verifyToken], BookingController.myBookings);
 router.post('/bookings', [verifyToken], BookingController.store);
 router.put('/bookings/:id', [verifyToken], BookingController.update);
 router.delete('/bookings/:id', [verifyToken], BookingController.destroy);

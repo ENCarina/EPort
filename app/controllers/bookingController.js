@@ -7,7 +7,9 @@ const BookingController = {
             const bookings = await db.Booking.findAll({
                 include: [
                     { model: db.User, as: 'patient', attributes: ['name', 'email'] },
-                    { model: db.Staff, as: 'doctor', attributes: ['name', 'specialty'] }
+                    { model: db.Staff, as: 'doctor', attributes: ['specialty'], include: [{ model: db.User, attributes: ['name'] }] },
+                    { model: db.Slot, attributes: ['date', 'startTime', 'duration'] },
+                    { model: db.Consultation, attributes: ['name', 'price'] }
                 ]
             });
             res.status(200).json({ success: true, data: bookings });
@@ -44,68 +46,78 @@ const BookingController = {
         })
     },
     async store(req, res) {
-        try {
-            const currentUserId = req.userId;
-            const { slotId } = req.body;
-            
-            const slot = await db.Slot.findByPk(slotId);
+    let t;
+    try {
+        t = await db.sequelize.transaction();
 
-            if (!slot) {
-            console.log("HIBA: A kiválasztott Slot nem létezik az adatbázisban!");
-            return res.status(404).json({ success: false, message: "Időpont nem található!" });
-            }
+        const currentUserId = req.user?.id || req.userId;
+        const { slotId, consultationId } = req.body;
 
-            if (!currentUserId) {
-            return res.status(401).json({ message: "Felhasználó nem azonosítható!" });
-            }
-            //const booking = await BookingService.createBooking(req.body);
-            const bookingData = req.body;
-            console.log("--- UTOLSÓ ELLENŐRZÉS MENTÉS ELŐTT ---");
-            console.log("PatientId (User):", currentUserId);
-            console.log("StaffId (Doctor):", slot.staffId);
-            console.log("SlotId:", slot.id);
-            console.log("ConsultationId:", slot.consultationId);
+        if (!currentUserId) throw new Error("Nincs bejelentkezett felhasználó!");
 
-            const newBooking = await db.Booking.create({
-                // name: `Foglalás - ${currentUserId}`,
-                // patientId: currentUserId, // A tokenből jövő ID
-                // staffId: slot.staffId,
-                // slotId: slot.id,
-                // consultationId: slot.consultationId || 1,
-                // duration: bookingData.duration || 30,
-                // startTime: slot.startTime || "09:00",
-                // date: slot.date,
-                // status: 'Confirmed',
-                // price: 0,
-                // isPublic: false
-                name: `Foglalás - Páciens ${currentUserId}`,
-                patientId: currentUserId,   // 102
-                staffId: slot.staffId,      // 2
-                slotId: slot.id,           // 3
-                consultationId: 1, 
-                duration: 60,
-                startTime: slot.startTime || "10:00",
-                date: slot.date || "2026-03-02",
-                status: 'Confirmed',
-                price: 25000,
-                isPublic: false
-                });
-            await db.Slot.update({ isAvailable: false }, { where: { id: bookingData.slotId } });
+        // 1. Slot lekérése tranzakcióval
+        const slot = await db.Slot.findByPk(slotId, { transaction: t });
+        if (!slot || !slot.isAvailable) {
+            throw new Error("Az időpont már nem elérhető vagy nem létezik!");
+        }
+        // 2. Kritikus ellenőrzés: Létezik az orvos a Staff táblában?
+        const staffExists = await db.Staff.findByPk(slot.staffId, { transaction: t });
+        if (!staffExists) {
+            throw new Error(`Adatbázis hiba: A megadott orvos (ID: ${slot.staffId}) nem található a Staff táblában!`);
+        }
 
-            res.status(201).json({
-                success: true,
-                message: 'Sikeres foglalás és visszaigazoló email elküldve!',
-                data: newBooking
+        // 3. Felhasználó és Konzultáció ellenőrzése
+        const userExists = await db.User.findByPk(currentUserId, { transaction: t });
+        const targetConsultationId = consultationId || slot.consultationId;
+        const consultationExists = await db.Consultation.findByPk(targetConsultationId, { transaction: t });
+
+        if (!userExists) throw new Error("A felhasználó nem található!");
+        if (!consultationExists) throw new Error("A konzultációs típus nem található!");
+
+        // 4. Időpont formázása
+        const fullStartTime = new Date(`${slot.date} ${slot.startTime || "09:00:00"}`);
+
+        // 5. Booking létrehozása
+        const newBooking = await db.Booking.create({
+            name: `Foglalás - ${userExists.name || currentUserId}`,
+            patientId: currentUserId, 
+            staffId: slot.staffId,
+            slotId: slot.id,
+            consultationId: targetConsultationId,
+            duration: consultationExists.duration || 30,
+            startTime: fullStartTime,
+            status: 'Confirmed',
+            price: consultationExists.price || 0,
+            isPublic: false,
+        }, { transaction: t });
+
+        // 6. Slot frissítése
+        await db.Slot.update(
+            { isAvailable: false }, 
+            { where: { id: slotId }, transaction: t }
+        );
+
+        await t.commit();
+
+        // Email küldés (nem blokkolja a választ)
+        EmailService.sendBookingConfirmation(userExists.email || "teszt@email.hu", newBooking)
+            .catch(err => console.error("Email hiba:", err));
+
+        return res.status(201).json({
+            success: true,
+            message: 'Sikeres foglalás!',
+            data: newBooking
+        });
+
+    } catch (error) {
+        if (t) await t.rollback();
+        console.error("FOGLALÁSI HIBA:", error.message);
+        return res.status(400).json({
+            success: false,
+            error: error.message
             });
-
-        } catch (error) {
-            console.error("KONTROLLER HIBA részletei:", error);
-            res.status(400).json({
-                success: false,
-                error: error.message
-                });
-            }
-        },
+        }
+    },     
     async tryStore(req, res) {
         const booking = await db.Booking.create(req.body)
         res.status(201)
@@ -148,13 +160,25 @@ const BookingController = {
         })
     },
     async destroy(req, res) {
+        const t = await db.sequelize.transaction();
         try {
-            await BookingService.deleteBooking(req.params.id);
+            const booking = await db.Booking.findByPk(req.params.id);
+            if (!booking) throw new Error("Foglalás nem található!");
+            
+            await db.Slot.update(
+                { isAvailable: true }, 
+                { where: { id: booking.slotId }, transaction: t }
+            );
+
+            await booking.destroy({ transaction: t });
+            await t.commit();
+
             res.status(200).json({ 
                 success: true, 
-                message: 'Foglalás törölve, az időpont újra szabaddá vált.' 
+                message: 'Törölve és felszabadítva.' 
             });
         } catch (error) {
+            await t.rollback();
             res.status(500).json({ success: false, error: error.message });
         }
     }

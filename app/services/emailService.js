@@ -54,6 +54,7 @@ export const EmailService = {
             return info;
         } catch (error) {
             console.error('Regisztrációs email hiba:', error);
+            throw error; 
         }
     },
 

@@ -24,6 +24,9 @@ db.Slot.belongsTo(db.Staff, { foreignKey: 'staffId' });
 // 3. Booking kapcsolatok
 db.User.hasMany(db.Booking, { foreignKey: 'patientId', as: 'appointments' });
 db.Booking.belongsTo(db.User, { foreignKey: 'patientId', as: 'patient' });
+// Consultation - Booking (1:N)
+db.Consultation.hasMany(db.Booking, { foreignKey: 'consultationId', as: 'bookings' });
+db.Booking.belongsTo(db.Consultation, { foreignKey: 'consultationId', as: 'type' });
 
 db.Staff.hasMany(db.Booking, { foreignKey: 'staffId', as: 'bookings' });
 db.Booking.belongsTo(db.Staff, { foreignKey: 'staffId', as: 'doctor' });
@@ -33,7 +36,6 @@ db.Slot.hasOne(db.Booking, { foreignKey: 'slotId' });
 db.Booking.belongsTo(db.Slot, { foreignKey: 'slotId' });
 
 // 5. Staff - Consultation (M:N) 
-// FIGYU: a 'staff_consult' használatra, a seederben is
 db.Staff.belongsToMany(db.Consultation, { through: 'staff_consult', foreignKey: 'staffId', as: 'services' }); // lekérhető: staff.services
 db.Consultation.belongsToMany(db.Staff, { through: 'staff_consult', foreignKey: 'consultationId', as: 'specialists' });
 

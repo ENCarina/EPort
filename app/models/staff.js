@@ -7,7 +7,6 @@ const Staff = sequelize.define('staff', {
         allowNull: false,
         unique: true 
     },
-    bio: { type: DataTypes.TEXT, allowNull: true },
     specialty: { type: DataTypes.STRING, allowNull: true },
     isAvailable: { type: DataTypes.BOOLEAN, defaultValue: true },
     bio: { type: DataTypes.TEXT, allowNull: true },

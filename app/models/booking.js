@@ -3,9 +3,24 @@ import sequelize from '../database/database.js'
 
 const Booking = sequelize.define('bookings', {
     name: {type: DataTypes.STRING, allowNull: false },
-    patientId: { type: DataTypes.INTEGER,  allowNull: false  },
-    staffId: { type: DataTypes.INTEGER,  allowNull: false  },
-    consultationId: { type: DataTypes.INTEGER,  allowNull: false  },
+    patientId: { type: DataTypes.INTEGER,  allowNull: false,
+        references: {
+        model: 'Users', 
+        key: 'id'
+        }
+      },
+    staffId: { type: DataTypes.INTEGER,  allowNull: false,
+        references: {
+        model: 'Staff',
+        key: 'id'
+        }
+      },
+    consultationId: { type: DataTypes.INTEGER,  allowNull: false,
+        references: {
+        model: 'Consultations', 
+        key: 'id'
+        }
+      },
     slotId: { type: DataTypes.INTEGER, allowNull: false },
     duration: { type: DataTypes.INTEGER, allowNull: false },
     startTime: { type: DataTypes.DATE, allowNull: false }, 

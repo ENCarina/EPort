@@ -9,19 +9,33 @@ export const BookingService = {
         if (new Date(bookingData.appointment_date) < new Date()) {
             throw new Error('Nem foglalható időpont a múltba!');
         }
+        const t = await db.sequelize.transaction();
+        try {
+            const slot = await db.Slot.findByPk(bookingData.slotId, { transaction: t });
+            if (!slot || !slot.isAvailable) {
+                throw new Error('Ez az időpont már foglalt!');
+            }
 
         const newBooking = await db.Booking.create({
             ...bookingData,
-            patientId: bookingData.patientId || req.user.id, 
+            patientId:user.id, 
             status: 'Confirmed'
+        }, { transaction: t});
+
+        await slot.update({ isAvailable: false }, { transaction: t });
+        await t.commit();
+
+        // E-mail küldés
+        await EmailService.sendBookingConfirmation(user.email, newBooking).catch(err => {
+            console.error('E-mail hiba:', err);
         });
 
-        // E-mail küldés az EmailService-el
-        await EmailService.sendBookingConfirmation(user.email, newBooking);
-
         return newBooking;
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }   
     },
-
     // 2. Szabad időpontok keresése szűréssel
     async getAvailableSlots(staffId, date) {
         return await db.Slot.findAll({
