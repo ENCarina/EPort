@@ -1,5 +1,6 @@
 import { BookingService } from '../services/bookingService.js';
 import db from '../models/modrels.js';
+import { EmailService } from '../services/emailService.js';
 
 const BookingController = {
     async index(req, res) {
@@ -7,10 +8,11 @@ const BookingController = {
             const bookings = await db.Booking.findAll({
                 include: [
                     { model: db.User, as: 'patient', attributes: ['name', 'email'] },
-                    { model: db.Staff, as: 'doctor', attributes: ['specialty'], include: [{ model: db.User, attributes: ['name'] }] },
-                    { model: db.Slot, attributes: ['date', 'startTime', 'duration'] },
-                    { model: db.Consultation, attributes: ['name', 'price'] }
-                ]
+                    { model: db.Staff, as: 'doctor', attributes: ['id', 'specialty'], include: [{ model: db.User, as: 'staffProfile',attributes: ['name'] }] },
+                    { model: db.Slot, attributes: ['date', 'startTime', 'endTime','duration'] },
+                    { model: db.Consultation, attributes: ['id', 'name', 'price'] }
+                ],
+                order: [['createdAt', 'DESC']]
             });
             res.status(200).json({ success: true, data: bookings });
         } catch (error) {
@@ -110,11 +112,13 @@ const BookingController = {
         });
 
     } catch (error) {
-        if (t) await t.rollback();
-        console.error("FOGLALÁSI HIBA:", error.message);
+        console.error('Controller hiba:', error.message);
+        if (t && !t.finished) {
+            await t.rollback();
+        }
         return res.status(400).json({
             success: false,
-            error: error.message
+            error: error.message ||'Sajnáljuk, a foglalás nem sikerült.'
             });
         }
     },     

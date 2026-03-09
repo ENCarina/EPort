@@ -1,18 +1,56 @@
 import db from '../models/modrels.js'
 
-const { Staff, User } = db;
+const { Staff, User, Consultation } = db;
 
 const StaffController = {
+    // 1. Publikus profilok a kezdőlapra / UI-ra
+    async getPublicProfiles(req, res) {
+        try {
+            const profiles = await Staff.findAll({
+                where: { isAvailable: true }, 
+                attributes: ['id', 'specialty', 'bio', 'imageUrl'], 
+                include: [
+                    {
+                        model: User,
+                        as: 'staffProfile', 
+                        attributes: ['name']
+                    },
+                    {
+                        model: Consultation,
+                        as: 'services', 
+                        attributes: ['id', 'name', 'price'],
+                        through: { attributes: [] } 
+                    }
+                ]
+            });
+
+            const formattedProfiles = profiles.map(staff => ({
+                id: staff.id,
+                name: staff.staffProfile ? staff.staffProfile.name : 'Névtelen orvos',
+                specialty: staff.specialty,
+                bio: staff.bio,
+                imageUrl: staff.imageUrl,
+                services: staff.services
+            }));
+
+            res.json({ success: true, data: formattedProfiles });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
     async index(req, res) {
         try {
-            await StaffController.tryIndex(req, res)
-        }catch(error) {
-            res.status(500)
-            res.json({
-                success: false,
-                message: 'Error! The query is failed!',
-                error: error.message
-            })
+            const staff = await Staff.findAll({
+                include: [{
+                    model: User,
+                    as: 'staffProfile', // Itt is fontos az alias!
+                    attributes: ['name', 'email', 'roleId']
+                }]
+            });
+            res.status(200).json({ success: true, data: staff });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
         }
     },
     async tryIndex(req, res) {
@@ -30,7 +68,14 @@ const StaffController = {
     },
     async show(req, res) {
         try {
-            await StaffController.tryShow(req, res)
+            const staff = await Staff.findByPk(req.params.id,{
+                include: [{
+                    model: User,
+                    attributes:['name', 'email','roleId']
+                }]
+            })
+            if(!staff) { return res.status(404).json({ success: false, message: 'Staff not found' }) }
+            res.status(200).json({ success: true, data: staff });
         }catch(error) {
             res.status(500)
             res.json({
@@ -55,14 +100,10 @@ const StaffController = {
     },
     async store(req, res) {
         try {
-            await StaffController.tryStore(req, res)
+            const staff = await Staff.create(req.body);
+            res.status(201).json({ success: true, data: staff });
         }catch(error) {
-            res.status(500)
-            res.json({
-                success: false,
-                message: 'Error! The query is failed!',
-                error: error.message
-            })
+            res.status(500).json({ success: false, error: error.message });
         }
     },
     async tryStore(req, res) {
@@ -75,21 +116,16 @@ const StaffController = {
     },
     async update(req, res) {
         try {
-            await StaffController.tryUpdate(req, res)
-        }catch(error) {
-            let actualMessage = '';
-            if(error.message == 'Fail! Record not found!') {
-                actualMessage = error.message
-                res.status(404)
-            }else {
-                res.status(500)
-                actualMessage = 'Fail! The query is failed!'
+            onst [recordNumber] = await Staff.update(req.body, {
+                where: { id: req.params.id }
+            });
+            if (recordNumber === 0) {
+                return res.status(404).json({ success: false, message: 'Fail! Record not found!' });
             }
-            
-            res.json({
-                success: false,
-                message: actualMessage
-            })
+            const staff = await Staff.findByPk(req.params.id);
+            res.status(200).json({ success: true, data: staff });
+        }catch(error) {
+            res.status(500).json({ success: false, error: error.message });
         }
     },
     async tryUpdate(req, res) {
@@ -108,13 +144,10 @@ const StaffController = {
     },
     async destroy(req, res) {
         try {
-            await StaffController.tryDestroy(req, res)
+            const result = await Staff.destroy({ where: { id: req.params.id } });
+            res.status(200).json({ success: true, data: result });
         }catch(error) {
-            res.status(500).json({
-                success: false,
-                message: 'Error! The query is failed!',
-                error: error.message
-            })
+            res.status(500).json({ success: false, error: error.message });
         }
     },
     async tryDestroy(req, res) {

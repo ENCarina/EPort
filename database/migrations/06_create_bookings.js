@@ -24,7 +24,7 @@ async function up({context: QueryInterface}) {
     staffId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: 'users', key: 'id' },
+      references: { model: 'staff', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE' 
     },

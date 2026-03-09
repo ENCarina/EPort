@@ -23,7 +23,11 @@ async function up({context: QueryInterface}) {
           { staffId: 2, consultationId: 2, date: '2026-03-12', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
           { staffId: 3, consultationId: 3, date: '2026-03-10', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
           { staffId: 3, consultationId: 2, date: '2026-03-10', startTime: '13:00:00', endTime: '14:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-  ];
+          { staffId: 1, consultationId: 1, date: '2026-03-12', startTime: '15:00:00', endTime: '16:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
+          { staffId: 1, consultationId: 1, date: '2026-03-12', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
+          { staffId: 2, consultationId: 2, date: '2026-03-10', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
+          { staffId: 3, consultationId: 2, date: '2026-03-13', startTime: '12:00:00', endTime: '13:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
+  ];  
     if (db && db.Slot) {
         await db.Slot.bulkCreate(slotsData);
       }else {
@@ -31,7 +35,7 @@ async function up({context: QueryInterface}) {
   }
 }
 
-async function down(QueryInterface, Sequelize) {
+async function down({context: QueryInterface}) {
   await QueryInterface.bulkDelete('slots', null, {});
   }
 

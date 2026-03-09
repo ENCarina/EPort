@@ -5,19 +5,19 @@ const Booking = sequelize.define('bookings', {
     name: {type: DataTypes.STRING, allowNull: false },
     patientId: { type: DataTypes.INTEGER,  allowNull: false,
         references: {
-        model: 'Users', 
+        model: 'users', 
         key: 'id'
         }
       },
     staffId: { type: DataTypes.INTEGER,  allowNull: false,
         references: {
-        model: 'Staff',
+        model: 'staff',
         key: 'id'
         }
       },
     consultationId: { type: DataTypes.INTEGER,  allowNull: false,
         references: {
-        model: 'Consultations', 
+        model: 'consultations', 
         key: 'id'
         }
       },

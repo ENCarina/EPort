@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 async function up({context: QueryInterface}) {
   await QueryInterface.createTable('consultations', {
@@ -30,8 +30,8 @@ async function up({context: QueryInterface}) {
       allowNull: false,
       defaultValue: 0.00
     },
-    createdAt: { type: DataTypes.DATE },
-    updatedAt: { type: DataTypes.DATE }    
+    createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')},
+    updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }    
   });
 }
 

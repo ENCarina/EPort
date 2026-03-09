@@ -1,11 +1,21 @@
 import { DataTypes } from 'sequelize'
 import sequelize from '../database/database.js'
+import User from './user.js'
 
 const Staff = sequelize.define('staff', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     userId: { 
         type: DataTypes.INTEGER, 
         allowNull: false,
-        unique: true 
+        unique: true, 
+        references: {
+            model: 'user',
+            key: 'id'
+        }
     },
     specialty: { type: DataTypes.STRING, allowNull: true },
     isAvailable: { type: DataTypes.BOOLEAN, defaultValue: true },

@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 async function up({ context: QueryInterface }) { 
   await QueryInterface.createTable('staff', {

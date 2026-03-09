@@ -4,9 +4,9 @@ export async function up({ context: queryInterface }) {
   await queryInterface.bulkInsert('bookings', [
     {
       name: 'Kardiológiai vizsgálat',
-      patientId: 50,         // User
-      staffId: 101,         // Dr. Kovács Antal
-      consultationId: 1,    // Ellenőrizd, hogy a consultations táblában van-e 1-es!
+      patientId: 50,        
+      staffId: 1,         // Dr. Kovács Antal
+      consultationId: 1,    
       slotId: 1,
       status: 'Confirmed',
       duration: 30,
@@ -19,9 +19,9 @@ export async function up({ context: queryInterface }) {
     },
     {
       name: 'Parandontológiai kiműtét',
-      patientId: 50,         // User
-      staffId: 102,         // Dr. Tóth Tünde
-      consultationId: 2,    // Ellenőrizd a consultations táblát!
+      patientId: 50,        
+      staffId: 2,         // Dr. Tóth Tünde
+      consultationId: 2,   
       slotId: 2,
       status: 'Confirmed',
       duration: 60,
@@ -34,9 +34,9 @@ export async function up({ context: queryInterface }) {
     },
     {
       name: 'Pszichiátriai első konzultáció',
-      patientId: 50,         // User
-      staffId: 103,         // Dr. House Greg
-      consultationId: 3,    // Ellenőrizd a consultations táblát!
+      patientId: 50,        
+      staffId: 3,         // Dr. House Greg
+      consultationId: 3,   
       slotId: 3,
       status: 'Confirmed',
       duration: 60,

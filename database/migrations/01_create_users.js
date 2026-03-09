@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 async function up({context: QueryInterface}) {
   await QueryInterface.createTable('users', {
@@ -10,11 +10,12 @@ async function up({context: QueryInterface}) {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
@@ -22,7 +23,7 @@ async function up({context: QueryInterface}) {
     },
     roleId: {
       type: DataTypes.INTEGER,
-      defaultValue: 1,
+      defaultValue: 0,
       references: {
         model: 'roles', 
         key: 'id'
@@ -30,8 +31,8 @@ async function up({context: QueryInterface}) {
       onUpdate: 'CASCADE',
       onDelete: 'SET DEFAULT'
     },
-    createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: new Date() },
-    updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: new Date() }    
+    createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+    updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }    
   });
 }
 

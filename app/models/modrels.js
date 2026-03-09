@@ -15,7 +15,7 @@ db.Consultation = Consultation;
 
 // 1. User - Staff (1:1)
 db.User.hasOne(db.Staff, { foreignKey: 'userId', onDelete: 'CASCADE' });
-db.Staff.belongsTo(db.User, { foreignKey: 'userId' });
+db.Staff.belongsTo(db.User, { foreignKey: 'userId', as: 'staffProfile' }); // Staff táblából kiindulva, látni akarom a nevet/emailt,
 
 // 2. Staff - Slot (1:N)
 db.Staff.hasMany(db.Slot, { foreignKey: 'staffId', onDelete: 'CASCADE' });
@@ -24,6 +24,8 @@ db.Slot.belongsTo(db.Staff, { foreignKey: 'staffId' });
 // 3. Booking kapcsolatok
 db.User.hasMany(db.Booking, { foreignKey: 'patientId', as: 'appointments' });
 db.Booking.belongsTo(db.User, { foreignKey: 'patientId', as: 'patient' });
+db.Booking.findAll({ include: [{ model: db.Staff, as: 'doctor' }] });
+
 // Consultation - Booking (1:N)
 db.Consultation.hasMany(db.Booking, { foreignKey: 'consultationId', as: 'bookings' });
 db.Booking.belongsTo(db.Consultation, { foreignKey: 'consultationId', as: 'type' });
@@ -36,7 +38,7 @@ db.Slot.hasOne(db.Booking, { foreignKey: 'slotId' });
 db.Booking.belongsTo(db.Slot, { foreignKey: 'slotId' });
 
 // 5. Staff - Consultation (M:N) 
-db.Staff.belongsToMany(db.Consultation, { through: 'staff_consult', foreignKey: 'staffId', as: 'services' }); // lekérhető: staff.services
+db.Staff.belongsToMany(db.Consultation, { through: 'staff_consult', foreignKey: 'staffId', as: 'services' }); 
 db.Consultation.belongsToMany(db.Staff, { through: 'staff_consult', foreignKey: 'consultationId', as: 'specialists' });
 
 // A Slot és a Consultation közötti kapcsolat (1:N) //Mivel a slot konkrétan egy bizonyos szolgáltatásra fenntartott időpont, így látod a naptárban, h az adott óra kardiológia vagy fogászat.

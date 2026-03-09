@@ -8,7 +8,6 @@ import StaffController from '../controllers/staffController.js';
 import BookingController from '../controllers/bookingController.js';
 import SlotController from '../controllers/slotController.js';
 import ConsultationController from '../controllers/consultationController.js';
-import ProfileController from '../controllers/profileController.js';
  
 router.post('/register', AuthController.register)
 router.post('/login', AuthController.login)
@@ -23,9 +22,9 @@ router.post('/staff', [verifyToken], StaffController.store);
 router.put('/staff/:id', [verifyToken], StaffController.update);
 router.delete('/staff/:id', [verifyToken], StaffController.destroy);
 
-// --- PUBLIKUS PROFILOK (Pácienseknek nézelődéshez) ---
-router.get('/profiles', ProfileController.index);
-router.get('/profiles/:id', ProfileController.show);
+// --- PUBLIKUS PROFILOK (Pácienseknek nézelődni) ---
+router.get('/doctors', StaffController.getPublicProfiles);
+router.get('/', StaffController.index); //admin-nak (Email, belső ID-k, teljes User profil)
 
 router.get('/consultations', [verifyToken], ConsultationController.index);
 router.get('/consultations/:id', [verifyToken], ConsultationController.show);
