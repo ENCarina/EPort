@@ -2,22 +2,25 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "database_development",
+    "database": "eport",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": "./database.sqlite"
   },
   "test": {
     "username": "root",
     "password": null,
-    "database": "database_test",
+    "database": "eport_test",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": ":memory:"
   },
   "production": {
     "username": "root",
     "password": null,
-    "database": "database_production",
+    "database": "eport_prod",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "sqlite",
+    "storage": "./database.sqlite"
   }
 }

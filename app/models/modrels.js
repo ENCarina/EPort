@@ -4,6 +4,7 @@ import Staff from './staff.js';
 import Slot from './slot.js';
 import Booking from './booking.js';
 import Consultation from './consultation.js';
+import Role from './role.js';
 
 const db = {};
 db.sequelize = sequelize;
@@ -12,6 +13,7 @@ db.Staff = Staff;
 db.Slot = Slot;
 db.Booking = Booking;
 db.Consultation = Consultation;
+db.Role = Role;
 
 // 1. User - Staff (1:1)
 db.User.hasOne(db.Staff, { foreignKey: 'userId', onDelete: 'CASCADE' });

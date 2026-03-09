@@ -4,16 +4,26 @@ import db from '../models/modrels.js';
 const BookingController = {
     async index(req, res) {
         try {
+            const currentUserId = req.user?.id || req.userId;
+            
+            if (!currentUserId) {
+                return res.status(401).json({ success: false, error: 'User not authenticated' });
+            }
+            
             const bookings = await db.Booking.findAll({
+                where: { patientId: currentUserId },
                 include: [
                     { model: db.User, as: 'patient', attributes: ['name', 'email'] },
-                    { model: db.Staff, as: 'doctor', attributes: ['specialty'], include: [{ model: db.User, attributes: ['name'] }] },
-                    { model: db.Slot, attributes: ['date', 'startTime', 'duration'] },
-                    { model: db.Consultation, attributes: ['name', 'price'] }
+                    { model: db.Staff, as: 'doctor', include: [{ model: db.User, attributes: ['name'] }], attributes: ['id', 'specialty'] },
+                    { model: db.Slot, attributes: ['date', 'startTime', 'endTime'] },
+                    { model: db.Consultation, as: 'type', attributes: ['name', 'price'] }
                 ]
             });
+            
+            console.log('Bookings found:', bookings.length);
             res.status(200).json({ success: true, data: bookings });
         } catch (error) {
+            console.error('Booking index error:', error);
             res.status(500).json({ success: false, error: error.message });
         }
     },

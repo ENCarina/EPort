@@ -5,8 +5,8 @@ const Slot = sequelize.define('slots', {
     staffId: { type: DataTypes.INTEGER, allowNull: false },
     consultationId: { type: DataTypes.INTEGER, allowNull: false },
     date: { type: DataTypes.DATEONLY, allowNull: false },
-    startTime: { type: DataTypes.TIME, allowNull: false },
-    endTime: { type: DataTypes.TIME, allowNull: false },
+    startTime: { type: DataTypes.STRING, allowNull: false },
+    endTime: { type: DataTypes.STRING, allowNull: false },
     isAvailable: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true}
 }, {
     validate: {

@@ -1,0 +1,105 @@
+.detail-container {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.btn-back:hover {
+  color: #2980b9;
+}
+
+.detail-content {
+  max-width: 600px;
+}
+
+.detail-content h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.detail-content .specialty {
+  color: #3498db;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.detail-content .bio {
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.booking-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.booking-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.slots-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.slot-option {
+  padding: 1rem;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.slot-option:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.slot-option.selected {
+  border-color: #3498db;
+  background: #e3f2fd;
+  color: #3498db;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .slots-list {
+    grid-template-columns: 1fr;
+  }
+}

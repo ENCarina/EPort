@@ -1,0 +1,84 @@
+.profile-container {
+  max-width: 600px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.profile-container h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+.profile-info,
+.password-section,
+.logout-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.profile-info h2,
+.password-section h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.info-group {
+  margin-bottom: 1.5rem;
+}
+
+.info-group label {
+  display: block;
+  color: #7f8c8d;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.info-group p {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+.password-section form {
+  display: flex;
+  flex-direction: column;
+}
+
+.logout-section {
+  text-align: center;
+}
+
+.logout-section .btn {
+  margin: 0 auto;
+  display: inline-block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .profile-info,
+  .password-section,
+  .logout-section {
+    padding: 1rem;
+  }
+}

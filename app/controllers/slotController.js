@@ -22,22 +22,25 @@ const SlotController = {
             };
 
             if (staffId) {
-                whereClause.staffId = Number (staffId);
+                whereClause.staffId = Number(staffId);
             }
 
             if (date) {
                 whereClause.date = { [Op.gte]: date };
-                //whereClause.date = date; 
-
-            console.log("Keresési feltételek:", whereClause);
             }
+
+            console.log("Slot search criteria:", { staffId, consultationId, date });
+            console.log("Where clause:", whereClause);
+            
             const slots = await Slot.findAll({
                 where: whereClause,
                 order: [['date', 'ASC'], ['startTime', 'ASC']],
             });
             
+            console.log(`Found ${slots.length} slots`);
             res.status(200).json({ success: true, data: slots });
         } catch (error) {
+            console.error('Slot index error:', error);
             SlotController.handleError(res, error);
         }
     },

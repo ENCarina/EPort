@@ -75,7 +75,13 @@ const AuthController = {
                 });
             }
 
+            console.log('🔍 Login attempt for:', email);
+            console.log('🔐 Stored hash:', user.password);
+            console.log('📝 Provided password:', password);
+            
             const passwordIsValid = await bcrypt.compare(password, user.password);
+            
+            console.log('✓ Password valid:', passwordIsValid);
             
             if(!passwordIsValid) {
                 return res.status(401).json({
@@ -105,11 +111,13 @@ const AuthController = {
         })
         res.status(200).json({
             success: true,
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            roleId: user.roleId,
-            accessToken: token
+            token: token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                roleId: user.roleId
+            }
         });
     } catch (jwtError) {
         console.error("JWT hiba:", jwtError);

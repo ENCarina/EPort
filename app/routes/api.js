@@ -17,7 +17,7 @@ router.get('/users/:id', [verifyToken], UserController.show)
 router.put('/users/:id/password', [verifyToken], UserController.updatePassword)
 router.delete('/users/:id', [verifyToken], UserController.destroy)
 
-router.get('/staff', [verifyToken], StaffController.index);
+router.get('/staff', StaffController.index);
 router.get('/staff/:id', StaffController.show);
 router.post('/staff', [verifyToken], StaffController.store);
 router.put('/staff/:id', [verifyToken], StaffController.update);
