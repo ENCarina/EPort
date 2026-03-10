@@ -1,33 +1,70 @@
 import db from '../../app/models/modrels.js';
+
+function generateTimeSlots() {
+  // Generate 30-minute intervals from 08:00 to 20:00
+  const slots = [];
+  const startHour = 8;
+  const endHour = 20;
+  
+  for (let hour = startHour; hour < endHour; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const startHourStr = String(hour).padStart(2, '0');
+      const minuteStr = String(minute).padStart(2, '0');
+      const nextMinute = minute + 30;
+      
+      let nextHour = hour;
+      let nextMinuteStr = String(nextMinute).padStart(2, '0');
+      
+      if (nextMinute >= 60) {
+        nextHour = hour + 1;
+        nextMinuteStr = '00';
+      }
+      
+      const nextHourStr = String(nextHour).padStart(2, '0');
+      
+      slots.push({
+        startTime: `${startHourStr}:${minuteStr}:00`,
+        endTime: `${nextHourStr}:${nextMinuteStr}:00`
+      });
+    }
+  }
+  
+  return slots;
+}
+
 async function up({context: QueryInterface}) {
 
   await QueryInterface.bulkDelete('slots', null, {});
   
-  // const today = new Date();
-  // const nextMonday = new Date();
-  // nextMonday.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7 || 7));
-  // for (let i = 0; i < 5; i++) {
-  //   const currentdate = new Date(nextMonday);
-  //   currentdate. setDate(nextMonday.getDate() + i);
-  //   const dateStr = currentdate.toISOString().split('T')[0];
-  // }
-
-  const slotsData = [
-          { staffId: 1, consultationId: 1, date: '2026-03-10', startTime: '08:00:00', endTime: '09:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 1, consultationId: 1, date: '2026-03-10', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 1, consultationId: 1, date: '2026-03-11', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-11', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 3, date: '2026-03-11', startTime: '13:00:00', endTime: '14:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 3, date: '2026-03-12', startTime: '14:00:00', endTime: '15:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-12', startTime: '15:00:00', endTime: '16:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-12', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 3, date: '2026-03-10', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 2, date: '2026-03-10', startTime: '13:00:00', endTime: '14:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-  ];
-    if (db && db.Slot) {
-        await db.Slot.bulkCreate(slotsData);
-      }else {
-        await QueryInterface.bulkInsert('slots', slotsData);
+  const timeSlots = generateTimeSlots();
+  const staffIds = [1, 2, 3];
+  const consultationIds = [1, 2, 3];
+  const dates = ['2026-03-10', '2026-03-11', '2026-03-12', '2026-03-13', '2026-03-14'];
+  
+  const slotsData = [];
+  
+  // Generate slots for each combination of staff, consultation, and date
+  dates.forEach(date => {
+    staffIds.forEach((staffId, staffIdx) => {
+      timeSlots.forEach(timeSlot => {
+        slotsData.push({
+          staffId: staffId,
+          consultationId: consultationIds[staffIdx % consultationIds.length],
+          date: date,
+          startTime: timeSlot.startTime,
+          endTime: timeSlot.endTime,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      });
+    });
+  });
+  
+  if (db && db.Slot) {
+    await db.Slot.bulkCreate(slotsData);
+  } else {
+    await QueryInterface.bulkInsert('slots', slotsData);
   }
 }
 

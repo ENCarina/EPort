@@ -1,0 +1,34 @@
+<app-navigation></app-navigation>
+<div class="main-content">
+  <div *ngIf="loading" class="loading">Betöltés...</div>
+
+  <div *ngIf="!loading" class="bookings-container">
+    <h1>Időpontjaim</h1>
+
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+
+    <div class="bookings-list">
+      <div *ngFor="let booking of bookings" class="booking-card">
+        <h3>{{ getStaffName(booking) }}</h3>
+        <p class="specialty">{{ getSpecialty(booking) }}</p>
+        <p class="consultation">{{ getConsultationType(booking) }}</p>
+        <p class="date-time">
+          {{ booking.Slot?.date && booking.Slot?.startTime 
+             ? formatDateTime(booking.Slot.date, booking.Slot.startTime)
+             : (booking.startTime || booking.createdAt | date:'medium') }}
+        </p>
+        <p class="status">Állapot: {{ booking.status || 'Ütemezett' }}</p>
+        <p *ngIf="getPrice(booking)" class="price">Ár: {{ getPrice(booking) }} Ft</p>
+        <p *ngIf="booking.notes" class="notes">Megjegyzések: {{ booking.notes }}</p>
+        <button
+          class="btn btn-danger"
+          (click)="handleCancelBooking(booking.id)"
+        >
+          Időpont lemondása
+        </button>
+      </div>
+
+      <p *ngIf="bookings.length === 0">Nincsenek ütemezett időpontok</p>
+    </div>
+  </div>
+</div>

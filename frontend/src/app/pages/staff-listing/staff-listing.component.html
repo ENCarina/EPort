@@ -1,0 +1,26 @@
+<app-navigation></app-navigation>
+<div class="main-content">
+  <div *ngIf="loading" class="loading">Betöltés...</div>
+
+  <div *ngIf="!loading" class="listing-container">
+    <h1>Egészségügyi szakemberek</h1>
+    
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+
+    <div class="staff-grid">
+      <div *ngFor="let member of staff" class="staff-card">
+        <h3>{{ getStaffName(member) }}</h3>
+        <p class="specialty">{{ getSpecialty(member) }}</p>
+        <p class="bio">{{ getBio(member) }}</p>
+        <button
+          class="btn btn-primary"
+          (click)="viewDetails(member)"
+        >
+          Részletek megtekintése
+        </button>
+      </div>
+
+      <p *ngIf="staff.length === 0">Nincsenek elérhető szakemberek</p>
+    </div>
+  </div>
+</div>

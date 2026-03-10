@@ -1,0 +1,64 @@
+<app-navigation></app-navigation>
+<div class="main-content">
+  <div *ngIf="loading" class="loading">Betöltés...</div>
+
+  <div *ngIf="!loading" class="booking-page">
+    <h1>Időpont foglalása</h1>
+
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+
+    <div class="booking-steps">
+      <div class="step">
+        <h2>1. lépés: Válasszon egészségügyi szakembert</h2>
+        <div class="staff-selection">
+          <div
+            *ngFor="let member of staff"
+            [class.selected]="selectedStaff?.id === member.id"
+            class="staff-option"
+            (click)="handleStaffSelect(member)"
+          >
+            <h4>{{ getStaffName(member) }}</h4>
+            <p>{{ getSpecialty(member) }}</p>
+          </div>
+
+          <p *ngIf="staff.length === 0">Nincsenek elérhető szakemberek</p>
+        </div>
+      </div>
+
+      <div class="step" *ngIf="selectedStaff">
+        <h2>2. lépés: Válasszon időpontot</h2>
+        <div class="slots-selection">
+          <button
+            *ngFor="let slot of slots"
+            [class.selected]="selectedSlot?.id === slot.id"
+            class="slot-option"
+            (click)="selectSlot(slot)"
+          >
+            {{ formatSlotDateTime(slot) }}
+          </button>
+
+          <p *ngIf="slots.length === 0">Nincsenek elérhető időpontok</p>
+        </div>
+      </div>
+
+      <div class="step" *ngIf="selectedSlot">
+        <h2>3. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <textarea
+          [(ngModel)]="notes"
+          name="notes"
+          placeholder="Írjon megjegyzéseket a konzultációról..."
+          rows="4"
+        ></textarea>
+      </div>
+
+      <button
+        *ngIf="selectedSlot"
+        (click)="handleBooking()"
+        [disabled]="bookingLoading"
+        class="btn btn-primary"
+      >
+        {{ bookingLoading ? 'Foglalás...' : 'Foglalás megerősítése' }}
+      </button>
+    </div>
+  </div>
+</div>
