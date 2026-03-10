@@ -36,8 +36,10 @@ export class StaffListingComponent implements OnInit {
     });
   }
 
-  viewDetails(member: any): void {
-    this.router.navigate(['/staff', member.id], { state: { staff: member } });
+  startBooking(member: any): void {
+    this.router.navigate(['/booking'], {
+      queryParams: { staffId: member.id }
+    });
   }
 
   getStaffName(member: any): string {

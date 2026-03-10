@@ -16,40 +16,9 @@
 
       <div class="booking-section">
         <h2>Időpont foglalása</h2>
-
-        <div class="form-group">
-          <label>Elérhető időpontok</label>
-          <div class="slots-list">
-            <button
-              *ngFor="let slot of slots"
-              [class.selected]="selectedSlot?.id === slot.id"
-              class="slot-option"
-              (click)="selectSlot(slot)"
-            >
-              {{ formatSlotDateTime(slot) }}
-            </button>
-
-            <p *ngIf="slots.length === 0">Nincsenek elérhető időpontok</p>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="notes">Megjegyzések (nem kötelező)</label>
-          <textarea
-            id="notes"
-            [(ngModel)]="notes"
-            name="notes"
-            placeholder="Adjon hozzá megjegyzéseket a konzultációhoz..."
-            rows="4"
-          ></textarea>
-        </div>
-
-        <button
-          (click)="handleBooking()"
-          [disabled]="!selectedSlot || bookingLoading"
-          class="btn btn-primary"
-        >
-          {{ bookingLoading ? 'Foglalás...' : 'Foglalás megerősítése' }}
+        <p>Itt ugyanaz a foglalási folyamat indul, mint a felső "Időpont foglalás" menüpontban.</p>
+        <button (click)="goToBooking()" class="btn btn-primary">
+          Tovább a foglaláshoz
         </button>
       </div>
     </div>

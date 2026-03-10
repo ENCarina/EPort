@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { StaffService } from '../../services/staff.service';
 import { SlotService, Slot } from '../../services/slot.service';
@@ -23,8 +24,10 @@ export class BookingPageComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   bookingLoading: boolean = false;
+  preselectedStaffId: number | null = null;
 
   constructor(
+    private route: ActivatedRoute,
     private staffService: StaffService,
     private slotService: SlotService,
     private bookingService: BookingService,
@@ -32,6 +35,8 @@ export class BookingPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
+    this.preselectedStaffId = staffIdParam ? Number(staffIdParam) : null;
     this.fetchInitialData();
   }
 
@@ -44,6 +49,13 @@ export class BookingPageComponent implements OnInit {
         if (staffData.length > 0) {
           this.staff = staffData;
           this.error = '';
+
+          if (this.preselectedStaffId) {
+            const matchingStaff = this.staff.find((member: any) => member.id === this.preselectedStaffId);
+            if (matchingStaff) {
+              this.handleStaffSelect(matchingStaff);
+            }
+          }
         } else {
           this.error = 'Nincsenek elérhető szakemberek';
         }
