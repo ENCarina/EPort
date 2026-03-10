@@ -35,4 +35,14 @@
       <p *ngIf="bookings.length === 0">Nincsenek ütemezett időpontok</p>
     </div>
   </div>
+
+  <div *ngIf="actionFeedbackVisible" class="action-feedback-backdrop">
+    <div class="action-feedback-card" [class.error]="actionFeedbackType === 'error'">
+      <div class="feedback-icon" [class.error]="actionFeedbackType === 'error'">
+        <span *ngIf="actionFeedbackType === 'success'" class="icon-check">✓</span>
+        <span *ngIf="actionFeedbackType === 'error'" class="icon-cross">✕</span>
+      </div>
+      <p>{{ actionFeedbackMessage }}</p>
+    </div>
+  </div>
 </div>

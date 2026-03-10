@@ -35,6 +35,9 @@ export class BookingPageComponent implements OnInit {
   patientEmail: string = '';
   patientTaj: string = '';
   daySlotStartIndexMap: { [date: string]: number } = {};
+  actionFeedbackVisible: boolean = false;
+  actionFeedbackType: 'success' | 'error' = 'success';
+  actionFeedbackMessage: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -265,11 +268,14 @@ export class BookingPageComponent implements OnInit {
 
     this.bookingService.createBooking(payload).subscribe({
       next: () => {
-        alert(this.canCreatePatientBooking
-          ? 'Új páciens felvéve és időpont sikeresen lefoglalva!'
-          : 'Időpont sikeresen lefoglalva!');
+        this.showActionFeedback(
+          'success',
+          this.canCreatePatientBooking
+            ? 'Új páciens felvéve és az időpont sikeresen lefoglalva!'
+            : 'Időpont sikeresen lefoglalva!'
+        );
         this.bookingLoading = false;
-        this.router.navigate(['/my-bookings']);
+        setTimeout(() => this.router.navigate(['/my-bookings']), 1300);
       },
       error: (err) => {
         this.error = err.error?.message || 'Sikertelen időpontfoglalás';
@@ -467,5 +473,15 @@ export class BookingPageComponent implements OnInit {
 
     const start = Math.floor(slotIndex / this.daySlotsPageSize) * this.daySlotsPageSize;
     this.daySlotStartIndexMap[slot.date] = start;
+  }
+
+  private showActionFeedback(type: 'success' | 'error', message: string): void {
+    this.actionFeedbackType = type;
+    this.actionFeedbackMessage = message;
+    this.actionFeedbackVisible = true;
+
+    setTimeout(() => {
+      this.actionFeedbackVisible = false;
+    }, 1200);
   }
 }

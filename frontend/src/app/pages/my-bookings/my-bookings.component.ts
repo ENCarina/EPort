@@ -16,6 +16,9 @@ export class MyBookingsComponent implements OnInit {
   isAdmin: boolean = false;
   selectedDoctorStaffId: number | null = null;
   selectedDoctorName: string = '';
+  actionFeedbackVisible: boolean = false;
+  actionFeedbackType: 'success' | 'error' = 'success';
+  actionFeedbackMessage: string = '';
 
   constructor(
     private bookingService: BookingService,
@@ -61,6 +64,7 @@ export class MyBookingsComponent implements OnInit {
     this.bookingService.deleteBooking(id).subscribe({
       next: () => {
         this.bookings = this.bookings.filter(b => b.id !== id);
+        this.showActionFeedback('error', 'Időpont sikeresen lemondva.');
       },
       error: () => {
         this.error = 'Nem sikerült lemondani az időpontot';
@@ -144,5 +148,15 @@ export class MyBookingsComponent implements OnInit {
     }
 
     return bookingsData;
+  }
+
+  private showActionFeedback(type: 'success' | 'error', message: string): void {
+    this.actionFeedbackType = type;
+    this.actionFeedbackMessage = message;
+    this.actionFeedbackVisible = true;
+
+    setTimeout(() => {
+      this.actionFeedbackVisible = false;
+    }, 1200);
   }
 }

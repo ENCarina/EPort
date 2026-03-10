@@ -103,7 +103,9 @@
 
       <div class="step" *ngIf="selectedSlot">
         <h2>4. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <p class="notes-helper">Írhat rövid előzményt vagy kérdést az orvosnak.</p>
         <textarea
+          class="notes-textarea"
           [(ngModel)]="notes"
           name="notes"
           placeholder="Írjon megjegyzéseket a konzultációról..."
@@ -139,6 +141,16 @@
       >
         {{ bookingLoading ? 'Foglalás...' : (canCreatePatientBooking ? 'Páciens felvétele és foglalás' : 'Foglalás megerősítése') }}
       </button>
+    </div>
+  </div>
+
+  <div *ngIf="actionFeedbackVisible" class="action-feedback-backdrop">
+    <div class="action-feedback-card" [class.error]="actionFeedbackType === 'error'">
+      <div class="feedback-icon" [class.error]="actionFeedbackType === 'error'">
+        <span *ngIf="actionFeedbackType === 'success'" class="icon-check">✓</span>
+        <span *ngIf="actionFeedbackType === 'error'" class="icon-cross">✕</span>
+      </div>
+      <p>{{ actionFeedbackMessage }}</p>
     </div>
   </div>
 </div>
