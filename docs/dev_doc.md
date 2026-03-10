@@ -6,6 +6,8 @@ The app key generated with generate-api-key package.
 
 ## Testing
 
+Run commands from the `backend` directory.
+
 Run tests:
 
 ```cmd
@@ -17,6 +19,8 @@ The test using the .env.test file and run in the memory database.
 Tests can be placed in the test directory, where Mocha runs them.
 
 ## Development
+
+Run commands from the `backend` directory.
 
 Start the application:
 

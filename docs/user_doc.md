@@ -1,5 +1,11 @@
 # User documentation
 
+All backend commands below should be run from the `backend` directory.
+
+```cmd
+cd backend
+```
+
 ## Install dependencies
 
 Dependencies must be installed before use.

@@ -4,9 +4,10 @@ EPort egészségügyi időpontfoglaló rendszer (Express + Angular).
 
 ## Gyors indítás
 
-Backend (gyökér mappa):
+Backend (`backend` mappa):
 
 ```bash
+cd backend
 npm install
 node op conf:generate
 node op key:generate

@@ -18,29 +18,35 @@ cd EPort
 
 ## 3. Backend telepítés és indítás
 
-A backend a gyökér mappában található.
+A backend a `backend` mappában található.
 
-1. Függőségek telepítése:
+1. Menj a backend mappába:
+
+```bash
+cd backend
+```
+
+2. Függőségek telepítése:
 
 ```bash
 npm install
 ```
 
-2. Konfiguráció és kulcs generálása:
+3. Konfiguráció és kulcs generálása:
 
 ```bash
 node op conf:generate
 node op key:generate
 ```
 
-3. Adatbázis migrációk és seed futtatása:
+4. Adatbázis migrációk és seed futtatása:
 
 ```bash
 node op migrate
 node op db:seed
 ```
 
-4. Backend indítása:
+5. Backend indítása:
 
 ```bash
 npm run dev
@@ -76,9 +82,10 @@ Várható frontend cím: `http://localhost:4200`
 
 Két terminálban:
 
-1. Terminál (root):
+1. Terminál (backend):
 
 ```bash
+cd backend
 npm run dev
 ```
 
@@ -94,6 +101,7 @@ npm start
 Ha hibás adatok vannak vagy tiszta indulás kell:
 
 ```bash
+cd backend
 node op migrate:fresh
 node op db:seed
 ```
@@ -101,6 +109,7 @@ node op db:seed
 ## 7. Tesztek futtatása (backend)
 
 ```bash
+cd backend
 npm test
 ```
 
@@ -117,7 +126,7 @@ Ha valamelyik foglalt, állítsd le a korábbi futó példányt.
 
 Ellenőrizd:
 
-- fut-e a backend a gyökér mappában
+- fut-e a backend a `backend` mappában
 - a frontend API URL-je `http://localhost:8000/api`-ra mutat
 
 ### Migration hiba
@@ -125,6 +134,7 @@ Ellenőrizd:
 Futtasd újra tisztán:
 
 ```bash
+cd backend
 node op migrate:fresh
 node op db:seed
 ```
