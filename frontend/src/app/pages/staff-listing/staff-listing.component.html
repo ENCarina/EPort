@@ -4,31 +4,43 @@
 
   <div *ngIf="!loading" class="listing-container">
     <h1>Egészségügyi szakemberek</h1>
-    
+
     <div *ngIf="error" class="error-message">{{ error }}</div>
 
-    <div class="staff-grid">
-      <div *ngFor="let member of staff" class="staff-card">
-        <h3>{{ getStaffName(member) }}</h3>
-        <p class="specialty">{{ getSpecialty(member) }}</p>
-        <p class="bio">{{ getBio(member) }}</p>
-        <button
-          class="btn btn-primary"
-          (click)="startBooking(member)"
-        >
-          {{ canBookAppointments ? 'Időpont foglalás' : 'Szabad időpontok megtekintése' }}
-        </button>
-        <button
-          *ngIf="isAdmin"
-          class="btn btn-demo"
-          style="margin-top: 10px;"
-          (click)="viewBookedAppointments(member)"
-        >
-          Foglalt időpontok
-        </button>
-      </div>
+    <p *ngIf="staff.length === 0" class="empty-state">Nincsenek elérhető szakemberek</p>
 
-      <p *ngIf="staff.length === 0">Nincsenek elérhető szakemberek</p>
+    <div *ngIf="staff.length > 0" class="staff-grid">
+      <div *ngFor="let member of staff" class="staff-card">
+        <div class="image-wrap">
+          <img
+            [src]="getImageUrl(member)"
+            [alt]="getStaffName(member)"
+            (error)="onImageError($event, member)"
+          />
+        </div>
+
+        <div class="card-content">
+          <h3>{{ getStaffName(member) }}</h3>
+          <p class="specialty">{{ getSpecialty(member) }}</p>
+          <p class="bio">{{ getBio(member) }}</p>
+        </div>
+
+        <div class="card-actions">
+          <button
+            class="btn btn-primary"
+            (click)="startBooking(member)"
+          >
+            {{ canBookAppointments ? 'Időpont foglalás' : 'Szabad időpontok megtekintése' }}
+          </button>
+          <button
+            *ngIf="isAdmin"
+            class="btn btn-demo"
+            (click)="viewBookedAppointments(member)"
+          >
+            Foglalt időpontok
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

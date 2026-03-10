@@ -6,9 +6,24 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-staff-listing',
   templateUrl: './staff-listing.component.html',
-  styleUrls: []
+  styleUrls: ['./staff-listing.component.css']
 })
 export class StaffListingComponent implements OnInit {
+  private readonly femaleNames = [
+    'tunde',
+    'tünde',
+    'dora',
+    'dóra',
+    'reka',
+    'réka',
+    'eszter',
+    'anna',
+    'zsuzsa',
+    'kata',
+    'julia',
+    'júlia'
+  ];
+
   staff: any[] = [];
   loading: boolean = true;
   error: string = '';
@@ -70,5 +85,38 @@ export class StaffListingComponent implements OnInit {
 
   getBio(member: any): string {
     return member.bio || 'Nincs elérhető információ';
+  }
+
+  private getGenderImage(member: any): string {
+    const gender = (member.gender || member.User?.gender || member.user?.gender || '').toString().toLowerCase();
+    if (gender.startsWith('f')) {
+      return 'assets/female_doctor.webp';
+    }
+
+    const name = this.getStaffName(member).toLowerCase();
+    const isFemaleByName = this.femaleNames.some((token) => name.includes(token));
+    return isFemaleByName ? 'assets/female_doctor.webp' : 'assets/male_doctor.webp';
+  }
+
+  getImageUrl(member: any): string {
+    const imageUrl =
+      member.imageUrl ||
+      member.image ||
+      member.photo ||
+      member.avatar ||
+      member.profileImage ||
+      member.User?.imageUrl ||
+      member.user?.imageUrl;
+
+    if (!imageUrl || imageUrl.includes('example.com')) {
+      return this.getGenderImage(member);
+    }
+
+    return imageUrl;
+  }
+
+  onImageError(event: Event, member: any): void {
+    const target = event.target as HTMLImageElement;
+    target.src = this.getGenderImage(member);
   }
 }
