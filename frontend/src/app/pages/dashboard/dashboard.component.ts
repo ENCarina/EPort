@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { StaffService } from '../../services/staff.service';
 import { AuthService } from '../../services/auth.service';
 import { BookingService } from '../../services/booking.service';
@@ -9,6 +10,8 @@ import { BookingService } from '../../services/booking.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+  private allServices: Array<any> = [];
+
   staffCount: number = 0;
   doctorCount: number = 0;
   totalBookings: number = 0;
@@ -20,11 +23,23 @@ export class DashboardComponent implements OnInit {
   error: string = '';
   userName: string | null = null;
   roleId: number | null = null;
+  serviceSearchTerm: string = '';
+  selectedServiceSpecialty: string = '';
+  filteredServices: Array<{
+    id: number;
+    name: string;
+    specialty: string;
+    duration: number;
+    price: number;
+    doctorCount: number;
+  }> = [];
+  serviceSpecialties: string[] = [];
 
   constructor(
     private staffService: StaffService,
     private authService: AuthService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +58,7 @@ export class DashboardComponent implements OnInit {
         const staffData = staffResponse?.data || staffResponse || [];
         this.staffCount = staffData.length || 0;
         this.doctorCount = staffData.filter((member: any) => member.role === 'doctor').length;
+        this.buildServiceCatalog(staffData);
 
         this.bookingService.getBookings().subscribe({
           next: (bookingsResponse: any) => {
@@ -87,6 +103,82 @@ export class DashboardComponent implements OnInit {
 
   getTopServicesTitle(): string {
     return this.isPatientView() ? 'Leggyakoribb szolgáltatásai' : 'Népszerű szolgáltatások';
+  }
+
+  updateServiceFilter(): void {
+    const query = this.serviceSearchTerm.trim().toLowerCase();
+    this.filteredServices = this.allServices.filter((service) => {
+      const matchesSearch =
+        !query ||
+        service.name.toLowerCase().includes(query) ||
+        service.specialty.toLowerCase().includes(query);
+      const matchesSpecialty = !this.selectedServiceSpecialty || service.specialty === this.selectedServiceSpecialty;
+      return matchesSearch && matchesSpecialty;
+    });
+  }
+
+  startQuickBooking(serviceId: number): void {
+    this.router.navigate(['/booking'], {
+      queryParams: {
+        consultationId: serviceId,
+        autoStaff: 1
+      }
+    });
+  }
+
+  formatPrice(value: number): string {
+    return new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 0 }).format(value || 0);
+  }
+
+  private buildServiceCatalog(staffData: any[]): void {
+    const serviceMap = new Map<number, {
+      id: number;
+      name: string;
+      specialty: string;
+      duration: number;
+      price: number;
+      doctorIds: Set<number>;
+    }>();
+
+    staffData.forEach((staffMember: any) => {
+      const doctorId = staffMember?.id;
+      const services = staffMember?.services || [];
+
+      services.forEach((service: any) => {
+        if (!service?.id) return;
+
+        const existing = serviceMap.get(service.id);
+        if (existing) {
+          if (doctorId) existing.doctorIds.add(doctorId);
+          return;
+        }
+
+        serviceMap.set(service.id, {
+          id: service.id,
+          name: service.name || 'Ismeretlen szolgáltatás',
+          specialty: service.specialty || 'Általános',
+          duration: Number(service.duration) || 30,
+          price: Number(service.price) || 0,
+          doctorIds: new Set(doctorId ? [doctorId] : [])
+        });
+      });
+    });
+
+    this.allServices = [...serviceMap.values()]
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        specialty: item.specialty,
+        duration: item.duration,
+        price: item.price,
+        doctorCount: item.doctorIds.size
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'hu'));
+
+    this.serviceSpecialties = [...new Set(this.allServices.map((service) => service.specialty))]
+      .sort((a, b) => a.localeCompare(b, 'hu'));
+
+    this.updateServiceFilter();
   }
 
   private countUpcomingBookings(bookingsData: any[]): number {

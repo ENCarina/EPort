@@ -29,6 +29,8 @@ export class BookingPageComponent implements OnInit {
   error: string = '';
   bookingLoading: boolean = false;
   preselectedStaffId: number | null = null;
+  preselectedConsultationId: number | null = null;
+  autoSelectStaffForConsultation: boolean = false;
   canBookAppointments: boolean = false;
   canCreatePatientBooking: boolean = false;
   patientName: string = '';
@@ -56,7 +58,11 @@ export class BookingPageComponent implements OnInit {
     });
 
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
+    const consultationIdParam = this.route.snapshot.queryParamMap.get('consultationId');
+    const autoStaffParam = this.route.snapshot.queryParamMap.get('autoStaff');
     this.preselectedStaffId = staffIdParam ? Number(staffIdParam) : null;
+    this.preselectedConsultationId = consultationIdParam ? Number(consultationIdParam) : null;
+    this.autoSelectStaffForConsultation = autoStaffParam === '1';
     this.fetchInitialData();
   }
 
@@ -70,7 +76,9 @@ export class BookingPageComponent implements OnInit {
           this.staff = staffData;
           this.error = '';
 
-          if (this.preselectedStaffId) {
+          if (this.preselectedConsultationId && this.autoSelectStaffForConsultation) {
+            this.initQuickBookingFlow(this.preselectedConsultationId);
+          } else if (this.preselectedStaffId) {
             const matchingStaff = this.staff.find((member: any) => member.id === this.preselectedStaffId);
             if (matchingStaff) {
               this.handleStaffSelect(matchingStaff);
@@ -117,7 +125,52 @@ export class BookingPageComponent implements OnInit {
     this.daySlotStartIndexMap = {};
     this.error = '';
 
-    this.slotService.getSlots(this.selectedStaff.id, consultation.id).subscribe({
+    this.loadSlotsForSelection(this.selectedStaff.id, consultation.id);
+  }
+
+  isQuickBookingMode(): boolean {
+    return !!(this.preselectedConsultationId && this.autoSelectStaffForConsultation);
+  }
+
+  private initQuickBookingFlow(consultationId: number): void {
+    const candidateDoctors = this.staff.filter((member: any) =>
+      (member?.services || []).some((service: any) => Number(service.id) === consultationId)
+    );
+
+    if (candidateDoctors.length === 0) {
+      this.error = 'Ehhez a szolgáltatáshoz jelenleg nincs elérhető orvos.';
+      return;
+    }
+
+    this.slotService.getSlots(undefined, consultationId).subscribe({
+      next: (response: any) => {
+        const allSlots = (response.data || response || [])
+          .filter((slot: Slot) => this.isSelectableDate(slot.date));
+
+        const firstAvailableSlot = allSlots[0];
+        const selectedDoctor = firstAvailableSlot
+          ? this.staff.find((member: any) => member.id === firstAvailableSlot.staffId)
+          : candidateDoctors[0];
+
+        this.selectedStaff = selectedDoctor;
+        this.selectedConsultation = (selectedDoctor?.services || []).find(
+          (service: any) => Number(service.id) === consultationId
+        ) || { id: consultationId };
+        this.selectedDate = null;
+        this.selectedSlot = null;
+        this.daySlotStartIndexMap = {};
+        this.error = '';
+
+        this.loadSlotsForSelection(selectedDoctor.id, consultationId);
+      },
+      error: () => {
+        this.error = 'Nem sikerült betölteni az automatikus foglalási adatokat.';
+      }
+    });
+  }
+
+  private loadSlotsForSelection(staffId: number, consultationId: number): void {
+    this.slotService.getSlots(staffId, consultationId).subscribe({
       next: (response: any) => {
         console.log('Slots response:', response);
         const slots = response.data || response || [];

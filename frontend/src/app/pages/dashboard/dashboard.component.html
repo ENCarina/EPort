@@ -67,6 +67,43 @@
       </div>
     </div>
 
+    <div class="dashboard-card service-catalog-card" *ngIf="isPatientView()">
+      <h3>Szolgáltatáslista gyors foglaláshoz</h3>
+      <p class="service-catalog-subtitle">Válasszon szolgáltatást, a rendszer automatikusan keres hozzá orvost. Önnek már csak időpontot kell kiválasztania.</p>
+
+      <div class="service-filter-row">
+        <input
+          type="text"
+          [(ngModel)]="serviceSearchTerm"
+          (ngModelChange)="updateServiceFilter()"
+          placeholder="Keresés szolgáltatás vagy szakterület szerint"
+        />
+
+        <select [(ngModel)]="selectedServiceSpecialty" (ngModelChange)="updateServiceFilter()">
+          <option value="">Minden szakterület</option>
+          <option *ngFor="let specialty of serviceSpecialties" [value]="specialty">{{ specialty }}</option>
+        </select>
+      </div>
+
+      <div class="service-list" *ngIf="filteredServices.length > 0; else noFilteredServices">
+        <button type="button" class="service-item" *ngFor="let service of filteredServices" (click)="startQuickBooking(service.id)">
+          <div class="service-item-main">
+            <strong>{{ service.name }}</strong>
+            <span>{{ service.specialty }}</span>
+          </div>
+          <div class="service-item-meta">
+            <span>{{ service.duration }} perc</span>
+            <span>{{ formatPrice(service.price) }} Ft</span>
+            <span>{{ service.doctorCount }} orvos</span>
+          </div>
+        </button>
+      </div>
+
+      <ng-template #noFilteredServices>
+        <p>Nincs találat a keresési feltételekre.</p>
+      </ng-template>
+    </div>
+
     <div class="dashboard-grid">
       <div class="dashboard-card">
         <h3>Időpont foglalása</h3>

@@ -7,8 +7,16 @@
 
     <div *ngIf="error" class="error-message">{{ error }}</div>
 
+    <div *ngIf="isQuickBookingMode() && selectedStaff && selectedConsultation" class="step quick-booking-summary">
+      <h2>Gyors foglalás</h2>
+      <p>
+        Szolgáltatás: <strong>{{ selectedConsultation.name || 'Kiválasztott szolgáltatás' }}</strong><br />
+        Kijelölt orvos: <strong>{{ getStaffName(selectedStaff) }}</strong>
+      </p>
+    </div>
+
     <div class="booking-steps">
-      <div class="step">
+      <div class="step" *ngIf="!isQuickBookingMode()">
         <h2>1. lépés: Válasszon egészségügyi szakembert</h2>
         <div class="staff-selection">
           <div
@@ -25,7 +33,7 @@
         </div>
       </div>
 
-      <div class="step" *ngIf="selectedStaff">
+      <div class="step" *ngIf="selectedStaff && !isQuickBookingMode()">
         <h2>2. lépés: Válasszon szolgáltatást ({{ getStaffName(selectedStaff) }})</h2>
 
         <div class="consultation-selection" *ngIf="getServicesForSelectedStaff().length > 0">
@@ -49,7 +57,7 @@
       </div>
 
       <div class="step" *ngIf="selectedConsultation">
-        <h2>3. lépés: Heti időpontfoglaló nézet</h2>
+        <h2>{{ isQuickBookingMode() ? '1. lépés: Heti időpontfoglaló nézet' : '3. lépés: Heti időpontfoglaló nézet' }}</h2>
         <div class="scheduler-toolbar" *ngIf="availableDates.length > 0">
           <button type="button" class="btn" (click)="goToPreviousWeek()">Előző hét</button>
           <span>{{ getWeekLabel() }}</span>
@@ -102,7 +110,7 @@
       </div>
 
       <div class="step" *ngIf="selectedSlot">
-        <h2>4. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <h2>{{ isQuickBookingMode() ? '2. lépés: Megjegyzések hozzáadása (nem kötelező)' : '4. lépés: Megjegyzések hozzáadása (nem kötelező)' }}</h2>
         <p class="notes-helper">Írhat rövid előzményt vagy kérdést az orvosnak.</p>
         <textarea
           class="notes-textarea"
