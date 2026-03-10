@@ -1,3 +1,50 @@
+.consultation-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.consultation-option {
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  padding: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.consultation-option:hover {
+  border-color: #1565c0;
+  box-shadow: 0 6px 16px rgba(21, 101, 192, 0.14);
+}
+
+.consultation-option.selected {
+  border-color: #1565c0;
+  background: #eef6ff;
+}
+
+.consultation-option h4 {
+  margin: 0 0 0.35rem;
+  color: #1f3a56;
+}
+
+.consultation-option p {
+  margin: 0;
+  color: #475467;
+  min-height: 42px;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.7rem;
+  font-size: 0.88rem;
+  color: #344054;
+}
+
 .scheduler-toolbar {
   display: flex;
   align-items: center;

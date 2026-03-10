@@ -1,6 +1,6 @@
 import db from '../models/modrels.js'
 
-const { Staff, User } = db;
+const { Staff, User, Consultation } = db;
 
 const StaffController = {
     async index(req, res) {
@@ -20,6 +20,11 @@ const StaffController = {
             include: [{
                 model: User,
                 attributes:['name', 'email','roleId']
+            }, {
+                model: Consultation,
+                as: 'services',
+                attributes: ['id', 'name', 'description', 'specialty', 'duration', 'price'],
+                through: { attributes: [] }
             }]
         })
         res.status(200)
@@ -45,6 +50,11 @@ const StaffController = {
             include: [{
                 model: User,
                 attributes:['name', 'email','roleId']
+            }, {
+                model: Consultation,
+                as: 'services',
+                attributes: ['id', 'name', 'description', 'specialty', 'duration', 'price'],
+                through: { attributes: [] }
             }]
         })
         res.status(200)

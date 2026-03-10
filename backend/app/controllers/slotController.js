@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import Slot from '../models/slot.js'
+import Consultation from '../models/consultation.js';
 
 
 const SlotController = {
@@ -29,11 +30,19 @@ const SlotController = {
                 whereClause.date = { [Op.gte]: date };
             }
 
+            if (consultationId) {
+                whereClause.consultationId = Number(consultationId);
+            }
+
             console.log("Slot search criteria:", { staffId, consultationId, date });
             console.log("Where clause:", whereClause);
             
             const slots = await Slot.findAll({
                 where: whereClause,
+                include: [{
+                    model: Consultation,
+                    attributes: ['id', 'name', 'duration', 'price', 'specialty']
+                }],
                 order: [['date', 'ASC'], ['startTime', 'ASC']],
             });
             

@@ -5,10 +5,18 @@ import { Observable } from 'rxjs';
 export interface Slot {
   id: number;
   staffId: number;
+  consultationId: number;
   startTime: string;
   endTime: string;
   isAvailable: boolean;
   date: string;
+  consultation?: {
+    id: number;
+    name: string;
+    duration: number;
+    price: number;
+    specialty: string;
+  };
 }
 
 @Injectable({
@@ -19,8 +27,12 @@ export class SlotService {
 
   constructor(private http: HttpClient) {}
 
-  getSlots(staffId?: number): Observable<Slot[]> {
-    const url = staffId ? `${this.apiUrl}?staffId=${staffId}` : this.apiUrl;
+  getSlots(staffId?: number, consultationId?: number): Observable<Slot[]> {
+    const params: string[] = [];
+    if (staffId) params.push(`staffId=${staffId}`);
+    if (consultationId) params.push(`consultationId=${consultationId}`);
+    const query = params.length ? `?${params.join('&')}` : '';
+    const url = `${this.apiUrl}${query}`;
     return this.http.get<Slot[]>(url);
   }
 

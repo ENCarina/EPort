@@ -17,6 +17,7 @@ export class BookingPageComponent implements OnInit {
 
   staff: any[] = [];
   selectedStaff: any = null;
+  selectedConsultation: any = null;
   slots: Slot[] = [];
   availableDates: string[] = [];
   dateWindowStartIndex: number = 0;
@@ -89,14 +90,31 @@ export class BookingPageComponent implements OnInit {
 
   handleStaffSelect(staffMember: any): void {
     this.selectedStaff = staffMember;
+    this.selectedConsultation = null;
+    this.selectedDate = null;
+    this.selectedSlot = null;
+    this.slots = [];
+    this.availableDates = [];
+    this.dateWindowStartIndex = 0;
+    this.daySlotStartIndexMap = {};
+    this.error = '';
+
+    const services = this.getServicesForSelectedStaff();
+    if (services.length === 0) {
+      this.error = 'Ehhez az orvoshoz még nincs szolgáltatás hozzárendelve.';
+    }
+  }
+
+  handleConsultationSelect(consultation: any): void {
+    this.selectedConsultation = consultation;
     this.selectedDate = null;
     this.selectedSlot = null;
     this.availableDates = [];
     this.dateWindowStartIndex = 0;
     this.daySlotStartIndexMap = {};
     this.error = '';
-    
-    this.slotService.getSlots(staffMember.id).subscribe({
+
+    this.slotService.getSlots(this.selectedStaff.id, consultation.id).subscribe({
       next: (response: any) => {
         console.log('Slots response:', response);
         const slots = response.data || response || [];
@@ -117,6 +135,11 @@ export class BookingPageComponent implements OnInit {
         console.error('Slots error:', err);
       }
     });
+  }
+
+  getServicesForSelectedStaff(): any[] {
+    if (!this.selectedStaff?.services) return [];
+    return this.selectedStaff.services;
   }
 
   selectDate(date: string): void {
@@ -217,6 +240,11 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
+    if (!this.selectedConsultation) {
+      this.error = 'Kérjük válasszon szolgáltatást';
+      return;
+    }
+
     if (this.canCreatePatientBooking && (!this.patientName || !this.patientEmail || !this.patientTaj)) {
       this.error = 'Új páciens felvételéhez adja meg a nevet, email címet és TAJ számot.';
       return;
@@ -225,6 +253,7 @@ export class BookingPageComponent implements OnInit {
     this.bookingLoading = true;
     const payload: any = {
       slotId: this.selectedSlot.id,
+      consultationId: this.selectedConsultation.id,
       notes: this.notes
     };
 
@@ -295,6 +324,10 @@ export class BookingPageComponent implements OnInit {
     return this.slots
       .filter(slot => slot.date === date)
       .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+  }
+
+  formatPrice(value: number): string {
+    return new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 0 }).format(value || 0);
   }
 
   getVisibleSlotsForDate(date: string): Slot[] {

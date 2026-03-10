@@ -26,7 +26,30 @@
       </div>
 
       <div class="step" *ngIf="selectedStaff">
-        <h2>2. lépés: Heti időpontfoglaló nézet</h2>
+        <h2>2. lépés: Válasszon szolgáltatást ({{ getStaffName(selectedStaff) }})</h2>
+
+        <div class="consultation-selection" *ngIf="getServicesForSelectedStaff().length > 0">
+          <button
+            type="button"
+            class="consultation-option"
+            *ngFor="let service of getServicesForSelectedStaff()"
+            [class.selected]="selectedConsultation?.id === service.id"
+            (click)="handleConsultationSelect(service)"
+          >
+            <h4>{{ service.name }}</h4>
+            <p>{{ service.description }}</p>
+            <div class="meta-row">
+              <span>{{ service.duration }} perc</span>
+              <strong>{{ formatPrice(service.price) }} Ft</strong>
+            </div>
+          </button>
+        </div>
+
+        <p *ngIf="getServicesForSelectedStaff().length === 0">Ehhez az orvoshoz nincs szolgáltatás beállítva.</p>
+      </div>
+
+      <div class="step" *ngIf="selectedConsultation">
+        <h2>3. lépés: Heti időpontfoglaló nézet</h2>
         <div class="scheduler-toolbar" *ngIf="availableDates.length > 0">
           <button type="button" class="btn" (click)="goToPreviousWeek()">Előző hét</button>
           <span>{{ getWeekLabel() }}</span>
@@ -79,7 +102,7 @@
       </div>
 
       <div class="step" *ngIf="selectedSlot">
-        <h2>3. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <h2>4. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
         <textarea
           [(ngModel)]="notes"
           name="notes"
@@ -89,7 +112,7 @@
       </div>
 
       <div class="step" *ngIf="selectedSlot && canCreatePatientBooking">
-        <h2>4. lépés: Új páciens felvétele</h2>
+        <h2>5. lépés: Új páciens felvétele</h2>
         <div class="form-group">
           <label for="patientName">Páciens neve</label>
           <input id="patientName" type="text" [(ngModel)]="patientName" name="patientName" placeholder="Pl. Kiss Anna" />

@@ -41,14 +41,14 @@ async function up({context: QueryInterface}) {
   // All doctor staff IDs (assistant is excluded)
   const staffIds = [1, 2, 3, 5, 6, 7, 8, 9];
   const consultationsByStaff = {
-    1: [1, 4, 5],
-    2: [2, 18, 19],
-    3: [3, 20, 21],
-    5: [6, 7, 8],
-    6: [1, 4, 5],
-    7: [9, 10, 11],
-    8: [12, 13, 14],
-    9: [15, 16, 17]
+    1: [1, 2, 3, 4],
+    2: [5, 6, 7, 8],
+    3: [9, 10, 11, 12],
+    5: [13, 14, 15, 16],
+    6: [1, 2, 3, 4],
+    7: [17, 18, 19, 20],
+    8: [21, 22, 23, 24],
+    9: [25, 26, 27, 28]
   };
 
   const dates = generateDateRange(new Date('2026-03-10'), new Date('2026-06-30'));
@@ -86,7 +86,7 @@ async function up({context: QueryInterface}) {
   }
 }
 
-async function down(QueryInterface, Sequelize) {
+async function down({context: QueryInterface}) {
   await QueryInterface.bulkDelete('slots', null, {});
   }
 
