@@ -1,16 +1,30 @@
-# sipere expressapi template
+# EPort
 
-Express based REST API template.
+EPort egészségügyi időpontfoglaló rendszer (Express + Angular).
 
-Website:
+## Gyors indítás
 
-* [https://sipere.github.io/sipere/](https://sipere.github.io/sipere/)
+Backend (gyökér mappa):
 
-## Install dependencies
-
-```cmd
+```bash
 npm install
+node op conf:generate
+node op key:generate
+node op migrate
+node op db:seed
 npm run dev
 ```
 
-See the docs directory for details.
+Frontend (külön terminál):
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+## Dokumentáció
+
+- Részletes telepítés: `docs/quick_install.md`
+- Fejlesztői dokumentáció: `docs/dev_doc.md`
+- API végpontok: `docs/endpoints.md`
