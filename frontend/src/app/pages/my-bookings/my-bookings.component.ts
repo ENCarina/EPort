@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-my-bookings',
   templateUrl: './my-bookings.component.html',
-  styleUrls: []
+  styleUrls: ['./my-bookings.component.css']
 })
 export class MyBookingsComponent implements OnInit {
   bookings: any[] = [];

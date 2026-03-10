@@ -9,6 +9,11 @@
 
     <div class="bookings-list">
       <div *ngFor="let booking of bookings" class="booking-card">
+        <div *ngIf="booking.notes" class="note-info-wrap">
+          <button type="button" class="note-info-btn" aria-label="Megjegyzés megtekintése" title="Megjegyzés">i</button>
+          <div class="note-tooltip">{{ booking.notes }}</div>
+        </div>
+
         <h3>{{ getPartnerLabel() }}: {{ getPartnerName(booking) }}</h3>
         <p class="specialty" *ngIf="getPartnerSubtitle(booking)">{{ getPartnerSubtitle(booking) }}</p>
         <p class="consultation">{{ getConsultationType(booking) }}</p>
@@ -19,7 +24,6 @@
         </p>
         <p class="status">Állapot: {{ booking.status || 'Ütemezett' }}</p>
         <p *ngIf="getPrice(booking)" class="price">Ár: {{ getPrice(booking) }} Ft</p>
-        <p *ngIf="booking.notes" class="notes">Megjegyzések: {{ booking.notes }}</p>
         <button
           class="btn btn-danger"
           (click)="handleCancelBooking(booking.id)"

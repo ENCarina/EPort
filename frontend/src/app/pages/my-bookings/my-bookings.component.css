@@ -1,0 +1,91 @@
+.main-content {
+  padding: 24px;
+}
+
+.bookings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.booking-card {
+  position: relative;
+  border: 1px solid #dbe4ea;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+  padding-right: 46px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.booking-card h3 {
+  margin-top: 0;
+  margin-right: 12px;
+}
+
+.note-info-wrap {
+  position: relative;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.note-info-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: #1565c0;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 24px;
+  text-align: center;
+  cursor: default;
+  padding: 0;
+}
+
+.note-tooltip {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(320px, 80vw);
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 5;
+}
+
+.note-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #0f172a;
+}
+
+.note-info-wrap:hover .note-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .bookings-list {
+    grid-template-columns: 1fr;
+  }
+}
