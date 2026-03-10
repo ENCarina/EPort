@@ -16,14 +16,14 @@ router.get('/users/:id', [verifyToken], UserController.show)
 router.put('/users/:id/password', [verifyToken], UserController.updatePassword)
 router.delete('/users/:id', [verifyToken], UserController.destroy)
 
-router.get('/staff', [verifyToken], StaffController.index);
+router.get('/staff', StaffController.index);
 router.get('/staff/:id', StaffController.show);
 router.post('/staff', [verifyToken], StaffController.store);
 router.put('/staff/:id', [verifyToken], StaffController.update);
 router.delete('/staff/:id', [verifyToken], StaffController.destroy);
 
 // --- PUBLIKUS PROFILOK (Pácienseknek nézelődni) ---
-router.get('/doctors', StaffController.getPublicProfiles);
+
 router.get('/', StaffController.index); //admin-nak (Email, belső ID-k, teljes User profil)
 
 router.get('/consultations', [verifyToken], ConsultationController.index);

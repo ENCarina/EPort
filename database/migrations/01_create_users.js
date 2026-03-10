@@ -31,6 +31,8 @@ async function up({context: QueryInterface}) {
       onUpdate: 'CASCADE',
       onDelete: 'SET DEFAULT'
     },
+    verificationToken: { type: DataTypes.STRING, allowNull: true },
+    verified: { type: DataTypes.BOOLEAN, defaultValue: false },
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
     updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }    
   });

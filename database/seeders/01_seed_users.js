@@ -9,7 +9,7 @@ async function up({ context: QueryInterface }) {
 
   await QueryInterface.bulkInsert('roles', [
     { id: 0, name: 'user', createdAt: new Date(), updatedAt: new Date() },
-    { id: 1, name: 'staff', createdAt: new Date(), updatedAt: new Date()},
+    { id: 1, name: 'staff', createdAt: new Date(), updatedAt: new Date() },
     { id: 2, name: 'admin', createdAt: new Date(), updatedAt: new Date() }
   ]);
 
@@ -17,11 +17,12 @@ async function up({ context: QueryInterface }) {
   const adminPassword = bcrypt.hashSync('joyEtna', 10);
 
   await QueryInterface.bulkInsert('users', [
-      { id: 50, name: 'User', email: 'user@ep.com', password: bcrypt.hashSync('test1243',10), roleId: 0 },
-      { id: 101, name: 'Dr. Kovács Antal', email: 'dr.kovacs@ep.com', password: doctorsPassword, roleId: 1 },
-      { id: 102, name: 'Dr. Tóth Tünde', email: 'dr.toth@ep.com', password: doctorsPassword,  roleId: 1 },
-      { id: 103, name: 'Dr. House Greg', email: 'dr.house@ep.com', password: doctorsPassword, roleId: 1 },
-      { id: 100, name: 'Admin', email: 'admin@ep.com', password: adminPassword, roleId: 2 },
+      { id: 25, name: 'User1', email: 'elitport@freemail.hu', password: bcrypt.hashSync('test987',10), roleId: 0, verified: true, verificationToken: null },
+      { id: 50, name: 'User', email: 'user@ep.com', password: bcrypt.hashSync('test1243',10), roleId: 0, verified: true, verificationToken: null },
+      { id: 101, name: 'Dr. Kovács Antal', email: 'dr.kovacs@ep.com', password: doctorsPassword, roleId: 1, verified: true, verificationToken: null },
+      { id: 102, name: 'Dr. Tóth Tünde', email: 'dr.toth@ep.com', password: doctorsPassword,  roleId: 1, verified: true, verificationToken: null },
+      { id: 103, name: 'Dr. House Greg', email: 'dr.house@ep.com', password: doctorsPassword, roleId: 1, verified: true, verificationToken: null },
+      { id: 100, name: 'Admin', email: 'admin@ep.com', password: adminPassword, roleId: 2, verified: true, verificationToken: null },
     ]);
 }
 async function down({ context: QueryInterface }) {

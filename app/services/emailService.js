@@ -7,14 +7,12 @@ const transporter = nodemailer.createTransport({
     port: 587,
     secure: false, 
     auth: {
-        type: 'login',
         user: process.env.EMAIL_USER, 
         pass: process.env.EMAIL_PASS
     },
-    authMethod: 'LOGIN',
     tls: { 
         rejectUnauthorized: false, 
-        minVersion: 'TLSv1.2'
+        //ciphers: 'SSLv3'
     },
 });
 
@@ -27,13 +25,12 @@ const COLORS = {
 };
 
 export const EmailService = {
-    
     async sendWelcomeEmail(userEmail, userName) {
         try {
             const info = await transporter.sendMail({
-                from: `"Elit Klinika" <${process.env.EMAIL_USER}>`,
+                from: process.env.EMAIL_USER,
                 to: userEmail,
-                subject: 'Üdvözlünk az Elit Klinika rendszerében!',
+                subject: 'Üdvözlünk az ElitPort rendszerében!',
                 html: `
                 <div style="font-family: Arial, sans-serif; color: ${COLORS.text}; max-width: 600px; margin: auto; border: 1px solid ${COLORS.silver}; background-color: ${COLORS.white}; padding: 20px;"> 
                     <div style="text-align: center; border-bottom: 3px solid ${COLORS.darkBlue}; padding-bottom: 20px; margin-bottom: 20px;">
@@ -107,3 +104,5 @@ export const EmailService = {
         }
     }
 };
+
+export const sendEmail = EmailService.sendWelcomeEmail;

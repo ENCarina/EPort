@@ -2,6 +2,9 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/user.js'
 import dotenvFlow from 'dotenv-flow'
+import crypto from 'crypto'
+import { sendEmail} from '../services/emailService.js'
+
 dotenvFlow.config() 
 
 const AuthController = {
@@ -26,7 +29,7 @@ const AuthController = {
                 clientError = true
                 throw new Error('Error! User already exists: ' + user.name)
             }
-            AuthController.tryRegister(req, res)
+            await AuthController.tryRegister(req, res)
         } catch (error) {
             if (clientError) {
                 res.status(400)
@@ -41,19 +44,49 @@ const AuthController = {
         }
     },
     async tryRegister(req, res) {
+        const verificationToken = crypto.randomBytes(32).toString('hex')
+        const verifyUrl = process.env.APP_URL + '/verify-email/' + verificationToken
+        
         const user = {
             name: req.body.name,
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password),
-            roleId:0 //mindenki fix páciensként regisztrál
+            roleId:0, // alapértelmezett szerep: user
+            verificationToken: verificationToken,
         }
         const result = await User.create(user)
-        
+
+        if (typeof sendEmail !== 'undefined') {
+            sendEmail({
+                email: req.body.email,
+                subject: 'Regisztráció',
+                html: `Regisztráció megerősítése:<br>
+                ${verifyUrl}`
+            })
+        }
         res.status(201).json({
             success: true,
             data: result
+        }) 
+    },
+    async verifyEmail(req, res) {
+        try {
+            const user = await User.findOne({
+            where: { verificationToken: req.params.token }
+            })
+            if(!user) {
+                return res.status(404).json({success: false, message: 'Error! User not found!'});
+            }
+        user.verified = true
+        await user.save()
+
+        res.status(200).json({
+            success: true,
+            message: 'The email is verified!',
         })
-        
+        } catch (error) {
+            res.status(500).json({ success: false, error: e.message });
+        }
     },
     async login(req, res) {
         

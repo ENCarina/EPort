@@ -22,7 +22,9 @@ const User = sequelize.define('user', {
         reference:{
             model: 'roles',
             key: 'id'
-        }
+        },
+    verificationToken: { type: DataTypes.STRING, allowNull: true },
+    verified: { type: DataTypes.BOOLEAN, defaultValue: false },
     }
      }, {
     timestamps: true,    
