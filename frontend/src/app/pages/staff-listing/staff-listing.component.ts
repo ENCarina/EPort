@@ -13,6 +13,7 @@ export class StaffListingComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   canBookAppointments: boolean = false;
+  isAdmin: boolean = false;
 
   constructor(
     private staffService: StaffService,
@@ -23,6 +24,7 @@ export class StaffListingComponent implements OnInit {
   ngOnInit(): void {
     this.authService.user$.subscribe(user => {
       this.canBookAppointments = user?.roleId === 0;
+      this.isAdmin = user?.roleId === 2;
     });
 
     this.fetchStaff();
@@ -46,6 +48,15 @@ export class StaffListingComponent implements OnInit {
   startBooking(member: any): void {
     this.router.navigate(['/booking'], {
       queryParams: { staffId: member.id }
+    });
+  }
+
+  viewBookedAppointments(member: any): void {
+    this.router.navigate(['/my-bookings'], {
+      queryParams: {
+        doctorStaffId: member.id,
+        doctorName: this.getStaffName(member)
+      }
     });
   }
 

@@ -18,6 +18,14 @@
         >
           {{ canBookAppointments ? 'Időpont foglalás' : 'Szabad időpontok megtekintése' }}
         </button>
+        <button
+          *ngIf="isAdmin"
+          class="btn btn-demo"
+          style="margin-top: 10px;"
+          (click)="viewBookedAppointments(member)"
+        >
+          Foglalt időpontok
+        </button>
       </div>
 
       <p *ngIf="staff.length === 0">Nincsenek elérhető szakemberek</p>

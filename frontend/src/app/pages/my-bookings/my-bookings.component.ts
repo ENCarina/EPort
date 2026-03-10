@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService, Booking } from '../../services/booking.service';
 import { AuthService } from '../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-my-bookings',
@@ -13,10 +14,13 @@ export class MyBookingsComponent implements OnInit {
   error: string = '';
   isDoctor: boolean = false;
   isAdmin: boolean = false;
+  selectedDoctorStaffId: number | null = null;
+  selectedDoctorName: string = '';
 
   constructor(
     private bookingService: BookingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -24,7 +28,13 @@ export class MyBookingsComponent implements OnInit {
       this.isDoctor = user?.roleId === 1;
       this.isAdmin = user?.roleId === 2;
     });
-    this.fetchBookings();
+
+    this.route.queryParamMap.subscribe(params => {
+      const doctorStaffIdParam = params.get('doctorStaffId');
+      this.selectedDoctorStaffId = doctorStaffIdParam ? Number(doctorStaffIdParam) : null;
+      this.selectedDoctorName = params.get('doctorName') || '';
+      this.fetchBookings();
+    });
   }
 
   fetchBookings(): void {
@@ -34,7 +44,7 @@ export class MyBookingsComponent implements OnInit {
         console.log('Bookings data:', response.data);
         const bookingsData = response.data || response || [];
         console.log('Processed bookings:', bookingsData);
-        this.bookings = bookingsData;
+        this.bookings = this.getFilteredBookings(bookingsData);
         this.loading = false;
       },
       error: (err) => {
@@ -109,6 +119,11 @@ export class MyBookingsComponent implements OnInit {
 
   getPageTitle(): string {
     if (this.isAdmin) {
+      if (this.selectedDoctorStaffId) {
+        const doctorName = this.selectedDoctorName || 'Kiválasztott orvos';
+        return `${doctorName} foglalt időpontjai`;
+      }
+
       return 'Összes foglalt időpont';
     }
 
@@ -121,5 +136,13 @@ export class MyBookingsComponent implements OnInit {
 
   getPrice(booking: any): number | null {
     return booking.type?.price || null;
+  }
+
+  private getFilteredBookings(bookingsData: any[]): any[] {
+    if (this.isAdmin && this.selectedDoctorStaffId) {
+      return bookingsData.filter((booking: any) => booking.staffId === this.selectedDoctorStaffId);
+    }
+
+    return bookingsData;
   }
 }
