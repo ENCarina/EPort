@@ -38,11 +38,17 @@ async function up({context: QueryInterface}) {
 
   await QueryInterface.bulkDelete('slots', null, {});
 
-  const staffIds = [1, 2, 3];
-  const consultationByStaff = {
-    1: 1,
-    2: 2,
-    3: 3
+  // All doctor staff IDs (assistant is excluded)
+  const staffIds = [1, 2, 3, 5, 6, 7, 8, 9];
+  const consultationsByStaff = {
+    1: [1, 4, 5],
+    2: [2, 18, 19],
+    3: [3, 20, 21],
+    5: [6, 7, 8],
+    6: [1, 4, 5],
+    7: [9, 10, 11],
+    8: [12, 13, 14],
+    9: [15, 16, 17]
   };
 
   const dates = generateDateRange(new Date('2026-03-10'), new Date('2026-06-30'));
@@ -53,10 +59,15 @@ async function up({context: QueryInterface}) {
 
   for (const date of dates) {
     for (const staffId of staffIds) {
-      for (const timeSlot of timeSlots) {
+      const staffConsultations = consultationsByStaff[staffId] || [];
+
+      for (let slotIndex = 0; slotIndex < timeSlots.length; slotIndex += 1) {
+        const timeSlot = timeSlots[slotIndex];
+        const consultationId = staffConsultations[slotIndex % staffConsultations.length] || 1;
+
         slotsData.push({
           staffId,
-          consultationId: consultationByStaff[staffId],
+          consultationId,
           date,
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,

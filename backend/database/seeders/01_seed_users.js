@@ -21,6 +21,11 @@ async function up({ context: QueryInterface }) {
       { id: 101, name: 'Dr. Kovács Antal', email: 'dr.kovacs@ep.com', password: doctorsPassword, roleId: 1 },
       { id: 102, name: 'Dr. Tóth Tünde', email: 'dr.toth@ep.com', password: doctorsPassword,  roleId: 1 },
       { id: 103, name: 'Dr. House Greg', email: 'dr.house@ep.com', password: doctorsPassword, roleId: 1 },
+      { id: 104, name: 'Dr. Farkas Dóra', email: 'dr.farkas@ep.com', password: doctorsPassword, roleId: 1 },
+      { id: 105, name: 'Dr. Varga Márton', email: 'dr.varga@ep.com', password: doctorsPassword, roleId: 1 },
+      { id: 106, name: 'Dr. Szabó Réka', email: 'dr.szabo@ep.com', password: doctorsPassword, roleId: 1 },
+      { id: 107, name: 'Dr. Németh Bálint', email: 'dr.nemeth@ep.com', password: doctorsPassword, roleId: 1 },
+      { id: 108, name: 'Dr. Horváth Eszter', email: 'dr.horvath@ep.com', password: doctorsPassword, roleId: 1 },
       { id: 100, name: 'Admin', email: 'admin@ep.com', password: adminPassword, roleId: 2 },
     ]);
 }
