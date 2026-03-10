@@ -60,9 +60,17 @@ export class BookingPageComponent implements OnInit {
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
     const consultationIdParam = this.route.snapshot.queryParamMap.get('consultationId');
     const autoStaffParam = this.route.snapshot.queryParamMap.get('autoStaff');
+    const patientNameParam = this.route.snapshot.queryParamMap.get('patientName');
+    const patientEmailParam = this.route.snapshot.queryParamMap.get('patientEmail');
+    const patientTajParam = this.route.snapshot.queryParamMap.get('patientTaj');
     this.preselectedStaffId = staffIdParam ? Number(staffIdParam) : null;
     this.preselectedConsultationId = consultationIdParam ? Number(consultationIdParam) : null;
     this.autoSelectStaffForConsultation = autoStaffParam === '1';
+
+    if (patientNameParam) this.patientName = patientNameParam;
+    if (patientEmailParam) this.patientEmail = patientEmailParam;
+    if (patientTajParam) this.patientTaj = patientTajParam;
+
     this.fetchInitialData();
   }
 

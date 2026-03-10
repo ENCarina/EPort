@@ -18,6 +18,7 @@ import { StaffDetailComponent } from './pages/staff-detail/staff-detail.componen
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
 import { MyBookingsComponent } from './pages/my-bookings/my-bookings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { PatientsComponent } from './pages/patients/patients.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
     StaffDetailComponent,
     BookingPageComponent,
     MyBookingsComponent,
-    ProfileComponent
+    ProfileComponent,
+    PatientsComponent
   ],
   imports: [
     BrowserModule,

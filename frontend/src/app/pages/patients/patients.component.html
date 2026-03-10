@@ -1,0 +1,61 @@
+<app-navigation></app-navigation>
+<div class="main-content">
+  <div *ngIf="loading" class="loading">Betöltés...</div>
+
+  <div *ngIf="!loading" class="patients-page">
+    <h1>Páciensek</h1>
+
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+
+    <div class="patients-toolbar" *ngIf="!error">
+      <input
+        type="text"
+        [(ngModel)]="patientSearchTerm"
+        (ngModelChange)="updatePatientFilter()"
+        placeholder="Keresés név, email vagy TAJ alapján"
+      />
+    </div>
+
+    <div class="patients-list" *ngIf="!error">
+      <div class="patient-item" *ngFor="let patient of filteredPatients">
+        <button type="button" class="patient-header" (click)="togglePatient(patient.id)">
+          <div>
+            <h3>{{ patient.name || 'Névtelen páciens' }}</h3>
+            <p>{{ patient.email || 'Nincs email' }} • TAJ: {{ patient.taj || 'Nincs megadva' }}</p>
+          </div>
+          <div class="patient-header-right">
+            <span class="booking-badge">{{ getBookingCount(patient.id) }} foglalás</span>
+            <span class="toggle-icon">{{ expandedPatientId === patient.id ? '−' : '+' }}</span>
+          </div>
+        </button>
+
+        <div class="patient-expanded" *ngIf="expandedPatientId === patient.id">
+          <h4>Korábbi foglalások</h4>
+
+          <div class="patient-bookings" *ngIf="getBookingsForPatient(patient.id).length > 0; else noBookings">
+            <div class="booking-row" *ngFor="let booking of getBookingsForPatient(patient.id)">
+              <div>
+                <strong>{{ booking.type?.name || 'Szolgáltatás' }}</strong>
+                <p>{{ formatDateTime(booking) }}</p>
+              </div>
+              <div class="booking-row-right">
+                <span>{{ booking.doctor?.user?.name || 'Nincs orvos' }}</span>
+                <span>{{ booking.status || 'Confirmed' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noBookings>
+            <p class="empty-bookings">Még nincs korábbi foglalás.</p>
+          </ng-template>
+
+          <button type="button" class="btn btn-primary" (click)="startBookingForPatient(patient)">
+            Új foglalás létrehozása a páciensnek
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="filteredPatients.length === 0">Nincs találat a keresésre.</p>
+    </div>
+  </div>
+</div>

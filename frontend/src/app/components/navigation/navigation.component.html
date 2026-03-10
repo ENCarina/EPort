@@ -41,6 +41,15 @@
           {{ getMyBookingsLabel() }}
         </a>
       </li>
+      <li *ngIf="userRoleId === 2">
+        <a
+          routerLink="/patients"
+          [class.active]="isActive('/patients')"
+          class="nav-link"
+        >
+          Páciensek
+        </a>
+      </li>
       <li>
         <a
           routerLink="/profile"

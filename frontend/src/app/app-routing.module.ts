@@ -10,6 +10,7 @@ import { StaffDetailComponent } from './pages/staff-detail/staff-detail.componen
 import { BookingPageComponent } from './pages/booking-page/booking-page.component';
 import { MyBookingsComponent } from './pages/my-bookings/my-bookings.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { PatientsComponent } from './pages/patients/patients.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -37,6 +38,11 @@ const routes: Routes = [
   { 
     path: 'my-bookings', 
     component: MyBookingsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'patients',
+    component: PatientsComponent,
     canActivate: [AuthGuard]
   },
   { 
