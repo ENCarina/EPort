@@ -67,9 +67,9 @@
       </div>
     </div>
 
-    <div class="dashboard-card service-catalog-card" *ngIf="isPatientView()">
+    <div class="dashboard-card service-catalog-card" *ngIf="canUseQuickServiceList()">
       <h3>Szolgáltatáslista gyors foglaláshoz</h3>
-      <p class="service-catalog-subtitle">Válasszon szolgáltatást, a rendszer automatikusan keres hozzá orvost. Önnek már csak időpontot kell kiválasztania.</p>
+      <p class="service-catalog-subtitle">{{ getServiceCatalogSubtitle() }}</p>
 
       <div class="service-filter-row">
         <input

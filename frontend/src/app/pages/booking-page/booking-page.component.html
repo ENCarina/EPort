@@ -122,7 +122,7 @@
       </div>
 
       <div class="step" *ngIf="selectedSlot && canCreatePatientBooking">
-        <h2>5. lépés: Új páciens felvétele</h2>
+        <h2>{{ isQuickBookingMode() ? '3. lépés: Új páciens felvétele' : '5. lépés: Új páciens felvétele' }}</h2>
         <div class="form-group">
           <label for="patientName">Páciens neve</label>
           <input id="patientName" type="text" [(ngModel)]="patientName" name="patientName" placeholder="Pl. Kiss Anna" />

@@ -97,12 +97,28 @@ export class DashboardComponent implements OnInit {
     return this.roleId === 0;
   }
 
+  isAdminView(): boolean {
+    return this.roleId === 2;
+  }
+
+  canUseQuickServiceList(): boolean {
+    return this.isPatientView() || this.isAdminView();
+  }
+
   getTotalBookingsLabel(): string {
     return this.isPatientView() ? 'Saját foglalások' : 'Foglalások összesen';
   }
 
   getTopServicesTitle(): string {
     return this.isPatientView() ? 'Leggyakoribb szolgáltatásai' : 'Népszerű szolgáltatások';
+  }
+
+  getServiceCatalogSubtitle(): string {
+    if (this.isAdminView()) {
+      return 'Válasszon szolgáltatást, a rendszer automatikusan keres hozzá orvost. Ezután időpontot és páciensadatokat kell megadnia.';
+    }
+
+    return 'Válasszon szolgáltatást, a rendszer automatikusan keres hozzá orvost. Önnek már csak időpontot kell kiválasztania.';
   }
 
   updateServiceFilter(): void {
