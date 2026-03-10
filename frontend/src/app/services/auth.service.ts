@@ -7,6 +7,7 @@ interface User {
   id: number;
   email: string;
   name: string;
+  roleId: number;
 }
 
 interface AuthResponse {
@@ -30,8 +31,11 @@ export class AuthService {
     private router: Router
   ) {
     const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+
     this.tokenSubject = new BehaviorSubject<string | null>(token);
-    this.userSubject = new BehaviorSubject<User | null>(null);
+    this.userSubject = new BehaviorSubject<User | null>(parsedUser);
     
     this.token$ = this.tokenSubject.asObservable();
     this.user$ = this.userSubject.asObservable();
@@ -54,6 +58,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
           this.tokenSubject.next(response.token);
           this.userSubject.next(response.user);
         })
@@ -65,6 +70,7 @@ export class AuthService {
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
           this.tokenSubject.next(response.token);
           this.userSubject.next(response.user);
         })
@@ -73,6 +79,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.tokenSubject.next(null);
     this.userSubject.next(null);
     this.router.navigate(['/login']);

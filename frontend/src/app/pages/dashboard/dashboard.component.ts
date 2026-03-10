@@ -27,8 +27,9 @@ export class DashboardComponent implements OnInit {
 
   fetchDashboardData(): void {
     this.staffService.getStaff().subscribe({
-      next: (data) => {
-        this.staffCount = data.length || 0;
+      next: (response: any) => {
+        const staffData = response?.data || response || [];
+        this.staffCount = staffData.length || 0;
         this.loading = false;
       },
       error: (err) => {

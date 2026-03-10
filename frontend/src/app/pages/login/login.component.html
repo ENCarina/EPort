@@ -40,6 +40,22 @@
       <button type="button" (click)="handleDemoLogin()" [disabled]="loading" class="btn btn-demo">
         Demo Admin Belépés
       </button>
+      <button type="button" (click)="toggleDoctorLogins()" [disabled]="loading" class="btn btn-demo">
+        Belépés orvosként
+      </button>
+
+      <div *ngIf="showDoctorLogins" class="doctor-login-list">
+        <p class="demo-label">Válasszon orvost:</p>
+        <button
+          type="button"
+          *ngFor="let doctor of doctorAccounts"
+          (click)="handleDoctorLogin(doctor.email)"
+          [disabled]="loading"
+          class="btn btn-demo"
+        >
+          {{ doctor.name }}
+        </button>
+      </div>
     </div>
 
     <p class="auth-link">

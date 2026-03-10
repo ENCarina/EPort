@@ -6,13 +6,26 @@ const BookingController = {
     async index(req, res) {
         try {
             const currentUserId = req.user?.id || req.userId;
+            const currentUserRole = req.user?.roleId;
             
             if (!currentUserId) {
                 return res.status(401).json({ success: false, error: 'User not authenticated' });
             }
+
+            let whereClause = { patientId: currentUserId };
+
+            if (currentUserRole === 1) {
+                const staffRecord = await db.Staff.findOne({ where: { userId: currentUserId } });
+
+                if (!staffRecord) {
+                    return res.status(200).json({ success: true, data: [] });
+                }
+
+                whereClause = { staffId: staffRecord.id };
+            }
             
             const bookings = await db.Booking.findAll({
-                where: { patientId: currentUserId },
+                where: whereClause,
                 include: [
                     { model: db.User, as: 'patient', attributes: ['name', 'email'] },
                     { model: db.Staff, as: 'doctor', include: [{ model: db.User, attributes: ['name'] }], attributes: ['id', 'specialty'] },
@@ -177,8 +190,22 @@ const BookingController = {
     async destroy(req, res) {
         const t = await db.sequelize.transaction();
         try {
+            const currentUserId = req.user?.id || req.userId;
+            const currentUserRole = req.user?.roleId;
+
             const booking = await db.Booking.findByPk(req.params.id);
             if (!booking) throw new Error("Foglalás nem található!");
+
+            if (currentUserRole === 1) {
+                const staffRecord = await db.Staff.findOne({ where: { userId: currentUserId } });
+                if (!staffRecord || booking.staffId !== staffRecord.id) {
+                    await t.rollback();
+                    return res.status(403).json({ success: false, error: 'Nincs jogosultság a foglalás törléséhez.' });
+                }
+            } else if (booking.patientId !== currentUserId) {
+                await t.rollback();
+                return res.status(403).json({ success: false, error: 'Nincs jogosultság a foglalás törléséhez.' });
+            }
             
             await db.Slot.update(
                 { isAvailable: true }, 

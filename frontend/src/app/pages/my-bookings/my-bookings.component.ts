@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingService, Booking } from '../../services/booking.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-my-bookings',
@@ -10,10 +11,17 @@ export class MyBookingsComponent implements OnInit {
   bookings: any[] = [];
   loading: boolean = true;
   error: string = '';
+  isDoctor: boolean = false;
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    private bookingService: BookingService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.authService.user$.subscribe(user => {
+      this.isDoctor = user?.roleId === 1;
+    });
     this.fetchBookings();
   }
 
@@ -64,12 +72,24 @@ export class MyBookingsComponent implements OnInit {
     return `${formattedDate} ${formattedTime}`;
   }
 
-  getStaffName(booking: any): string {
+  getPartnerName(booking: any): string {
+    if (this.isDoctor) {
+      return booking.patient?.name || 'Páciens';
+    }
+
     return booking.doctor?.user?.name || booking.staffName || 'Szakember';
   }
 
-  getSpecialty(booking: any): string {
+  getPartnerSubtitle(booking: any): string {
+    if (this.isDoctor) {
+      return booking.patient?.email || '';
+    }
+
     return booking.doctor?.specialty || 'Általános gyakorlat';
+  }
+
+  getPartnerLabel(): string {
+    return this.isDoctor ? 'Páciens' : 'Szakember';
   }
 
   getConsultationType(booking: any): string {

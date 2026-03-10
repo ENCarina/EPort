@@ -3,14 +3,14 @@
   <div *ngIf="loading" class="loading">Betöltés...</div>
 
   <div *ngIf="!loading" class="bookings-container">
-    <h1>Időpontjaim</h1>
+    <h1>{{ isDoctor ? 'Pácienseim időpontjai' : 'Időpontjaim' }}</h1>
 
     <div *ngIf="error" class="error-message">{{ error }}</div>
 
     <div class="bookings-list">
       <div *ngFor="let booking of bookings" class="booking-card">
-        <h3>{{ getStaffName(booking) }}</h3>
-        <p class="specialty">{{ getSpecialty(booking) }}</p>
+        <h3>{{ getPartnerLabel() }}: {{ getPartnerName(booking) }}</h3>
+        <p class="specialty" *ngIf="getPartnerSubtitle(booking)">{{ getPartnerSubtitle(booking) }}</p>
         <p class="consultation">{{ getConsultationType(booking) }}</p>
         <p class="date-time">
            {{ booking.slot?.date && booking.slot?.startTime 
