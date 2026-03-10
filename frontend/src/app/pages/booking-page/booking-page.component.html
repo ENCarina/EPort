@@ -26,51 +26,60 @@
       </div>
 
       <div class="step" *ngIf="selectedStaff">
-        <h2>2. lépés: Válasszon napot</h2>
-        <p *ngIf="getDisplayedYear()" class="slot-year">
-          Év: {{ getDisplayedYear() }}
-        </p>
-        <div class="period-nav" *ngIf="availableDates.length > 0">
-          <button type="button" class="btn" [disabled]="!canGoToPreviousPeriod()" (click)="goToPreviousPeriod()">
-            <
-          </button>
-          <span>{{ getCurrentPeriodLabel() }}</span>
-          <button type="button" class="btn" [disabled]="!canGoToNextPeriod()" (click)="goToNextPeriod()">
-            >
-          </button>
+        <h2>2. lépés: Heti időpontfoglaló nézet</h2>
+        <div class="scheduler-toolbar" *ngIf="availableDates.length > 0">
+          <button type="button" class="btn" (click)="goToPreviousWeek()">Előző hét</button>
+          <span>{{ getWeekLabel() }}</span>
+          <button type="button" class="btn" (click)="goToCurrentWeek()">Ma</button>
+          <button type="button" class="btn" (click)="goToNextWeek()">Következő hét</button>
         </div>
-        <div class="slots-selection">
-          <button
-            *ngFor="let date of getVisibleDates()"
-            [class.selected]="selectedDate === date"
-            class="slot-option"
-            (click)="selectDate(date)"
-          >
-            {{ formatDateLabel(date) }}
-          </button>
 
-          <p *ngIf="availableDates.length === 0">Nincsenek elérhető napok</p>
+        <div class="week-scheduler-grid" *ngIf="availableDates.length > 0">
+          <div class="day-column" *ngFor="let date of getWeekDays()">
+            <div class="day-column-header" [class.today]="isToday(date)">
+              <h4>{{ getWeekdayLabel(date) }}</h4>
+              <p>{{ getDayMonthLabel(date) }}</p>
+              <span class="slot-badge">{{ getSlotsForDate(date).length }} időpont</span>
+            </div>
+
+            <div class="day-column-slots">
+              <button
+                *ngIf="canScrollDayEarlier(date)"
+                type="button"
+                class="day-scroll-btn"
+                (click)="scrollDayEarlier(date)"
+              >
+                Korábban ezen a napon
+              </button>
+
+              <button
+                *ngFor="let slot of getVisibleSlotsForDate(date)"
+                [class.selected]="isSlotSelected(slot)"
+                class="slot-option scheduler-slot"
+                (click)="selectSlot(slot)"
+              >
+                {{ formatTimeRange(slot) }}
+              </button>
+
+              <p *ngIf="getSlotsForDate(date).length === 0" class="no-day-slots">Nincs szabad időpont</p>
+
+              <button
+                *ngIf="canScrollDayLater(date)"
+                type="button"
+                class="day-scroll-btn"
+                (click)="scrollDayLater(date)"
+              >
+                Később ezen a napon
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="step" *ngIf="selectedDate">
-        <h2>3. lépés: Válasszon időpontot</h2>
-        <div class="slots-selection">
-          <button
-            *ngFor="let slot of getSlotsForSelectedDate()"
-            [class.selected]="selectedSlot?.id === slot.id"
-            class="slot-option"
-            (click)="selectSlot(slot)"
-          >
-            {{ formatTimeRange(slot) }}
-          </button>
-
-          <p *ngIf="getSlotsForSelectedDate().length === 0">Nincsenek elérhető idősávok ezen a napon</p>
-        </div>
+        <p *ngIf="availableDates.length === 0">Nincsenek elérhető napok</p>
       </div>
 
       <div class="step" *ngIf="selectedSlot">
-        <h2>4. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <h2>3. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
         <textarea
           [(ngModel)]="notes"
           name="notes"
@@ -80,7 +89,7 @@
       </div>
 
       <div class="step" *ngIf="selectedSlot && canCreatePatientBooking">
-        <h2>5. lépés: Új páciens felvétele</h2>
+        <h2>4. lépés: Új páciens felvétele</h2>
         <div class="form-group">
           <label for="patientName">Páciens neve</label>
           <input id="patientName" type="text" [(ngModel)]="patientName" name="patientName" placeholder="Pl. Kiss Anna" />

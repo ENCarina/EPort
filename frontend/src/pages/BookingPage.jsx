@@ -1,12 +1,41 @@
 import { useState, useEffect } from 'react'
 import { staffAPI, slotAPI, bookingAPI } from '../services/api'
-import { formatTimeOnly, formatDateTime } from '../utils/formatTime'
+import { formatTimeOnly } from '../utils/formatTime'
 import '../styles/booking.css'
+
+const formatLocalDateKey = (dateValue) => {
+  const date = new Date(dateValue)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const getWeekStart = (dateValue) => {
+  const date = new Date(dateValue)
+  const weekday = (date.getDay() + 6) % 7
+  date.setDate(date.getDate() - weekday)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
+
+const buildWeekDays = (weekStart) => {
+  const days = []
+
+  for (let i = 0; i < 7; i += 1) {
+    const current = new Date(weekStart)
+    current.setDate(weekStart.getDate() + i)
+    days.push(current)
+  }
+
+  return days
+}
 
 const BookingPage = () => {
   const [staff, setStaff] = useState([])
   const [selectedStaff, setSelectedStaff] = useState(null)
   const [slots, setSlots] = useState([])
+  const [currentWeekStart, setCurrentWeekStart] = useState(getWeekStart(new Date()))
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(true)
@@ -45,6 +74,10 @@ const BookingPage = () => {
       console.log('Slots response:', slotsRes.data)
       const slotsData = slotsRes.data.data || slotsRes.data || []
       setSlots(slotsData)
+
+      if (slotsData.length > 0) {
+        setCurrentWeekStart(getWeekStart(slotsData[0].date))
+      }
     } catch (err) {
       setError('Failed to load slots')
       console.error('Slots error:', err)
@@ -73,6 +106,23 @@ const BookingPage = () => {
       setBookingLoading(false)
     }
   }
+
+  const slotsByDate = slots.reduce((acc, slot) => {
+    const dateKey = formatLocalDateKey(slot.date)
+    if (!acc[dateKey]) {
+      acc[dateKey] = []
+    }
+    acc[dateKey].push(slot)
+    return acc
+  }, {})
+
+  const weekDays = buildWeekDays(currentWeekStart)
+
+  const weekLabel = `${weekDays[0].toLocaleDateString('hu-HU')} - ${weekDays[6].toLocaleDateString('hu-HU')}`
+
+  const selectedSlotLabel = selectedSlot
+    ? `${new Date(selectedSlot.date).toLocaleDateString('hu-HU')} ${formatTimeOnly(selectedSlot.startTime)}`
+    : ''
 
   if (loading) return <div className="loading">Loading...</div>
 
@@ -105,21 +155,82 @@ const BookingPage = () => {
 
         {selectedStaff && (
           <div className="step">
-            <h2>Step 2: Select a Time Slot</h2>
-            <div className="slots-selection">
-              {slots.length > 0 ? (
-                slots.map((slot) => (
+            <h2>Step 2: Weekly Scheduler</h2>
+            {slots.length > 0 ? (
+              <>
+                <div className="scheduler-toolbar">
                   <button
-                    key={slot.id}
-                    className={`slot-option ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedSlot(slot)}
+                    className="scheduler-nav-btn"
+                    onClick={() => {
+                      const prev = new Date(currentWeekStart)
+                      prev.setDate(prev.getDate() - 7)
+                      setCurrentWeekStart(prev)
+                    }}
                   >
-                    {formatDateTime(slot.date, slot.startTime)}
+                    Előző hét
                   </button>
-                ))
-              ) : (
-                <p>No available slots for this professional</p>
-              )}
+                  <h3>{weekLabel}</h3>
+                  <button
+                    className="scheduler-nav-btn"
+                    onClick={() => setCurrentWeekStart(getWeekStart(new Date()))}
+                  >
+                    Ma
+                  </button>
+                  <button
+                    className="scheduler-nav-btn"
+                    onClick={() => {
+                      const next = new Date(currentWeekStart)
+                      next.setDate(next.getDate() + 7)
+                      setCurrentWeekStart(next)
+                    }}
+                  >
+                    Következő hét
+                  </button>
+                </div>
+
+                <div className="week-scheduler-grid">
+                  {weekDays.map((day) => {
+                    const dayKey = formatLocalDateKey(day)
+                    const daySlots = (slotsByDate[dayKey] || []).sort((a, b) => {
+                      return String(a.startTime).localeCompare(String(b.startTime))
+                    })
+
+                    return (
+                      <div key={dayKey} className="day-column">
+                        <div className="day-column-header">
+                          <h4>
+                            {day.toLocaleDateString('hu-HU', { weekday: 'short' })}
+                          </h4>
+                          <p>{day.toLocaleDateString('hu-HU', { month: '2-digit', day: '2-digit' })}</p>
+                          <span className="slot-badge">{daySlots.length} időpont</span>
+                        </div>
+
+                        <div className="day-column-slots">
+                          {daySlots.length > 0 ? (
+                            daySlots.map((slot) => (
+                              <button
+                                key={slot.id}
+                                className={`slot-option scheduler-slot ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
+                                onClick={() => setSelectedSlot(slot)}
+                              >
+                                {formatTimeOnly(slot.startTime)}
+                              </button>
+                            ))
+                          ) : (
+                            <p className="no-day-slots">Nincs szabad időpont</p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <p>No available slots for this professional</p>
+            )}
+
+            <div className="selected-slot-preview">
+              {selectedSlot && <p>Kiválasztott időpont: {selectedSlotLabel}</p>}
             </div>
           </div>
         )}
