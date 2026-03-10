@@ -10,10 +10,13 @@ import { BookingService } from '../../services/booking.service';
   styleUrls: []
 })
 export class BookingPageComponent implements OnInit {
+  private readonly periodSize = 14;
+
   staff: any[] = [];
   selectedStaff: any = null;
   slots: Slot[] = [];
   availableDates: string[] = [];
+  dateWindowStartIndex: number = 0;
   selectedDate: string | null = null;
   selectedSlot: Slot | null = null;
   notes: string = '';
@@ -61,6 +64,7 @@ export class BookingPageComponent implements OnInit {
     this.selectedDate = null;
     this.selectedSlot = null;
     this.availableDates = [];
+    this.dateWindowStartIndex = 0;
     this.error = '';
     
     this.slotService.getSlots(staffMember.id).subscribe({
@@ -69,6 +73,7 @@ export class BookingPageComponent implements OnInit {
         const slots = response.data || response || [];
         this.slots = slots.filter((slot: Slot) => this.isSelectableDate(slot.date));
         this.availableDates = [...new Set(this.slots.map((slot: Slot) => slot.date))].sort();
+        this.dateWindowStartIndex = this.getDefaultWindowStartIndex();
 
         if (this.availableDates.length === 0) {
           this.error = 'Nincsenek elérhető időpontok a kiválasztott időszakban.';
@@ -84,6 +89,42 @@ export class BookingPageComponent implements OnInit {
   selectDate(date: string): void {
     this.selectedDate = date;
     this.selectedSlot = null;
+  }
+
+  getVisibleDates(): string[] {
+    return this.availableDates.slice(this.dateWindowStartIndex, this.dateWindowStartIndex + this.periodSize);
+  }
+
+  canGoToPreviousPeriod(): boolean {
+    return this.dateWindowStartIndex > 0;
+  }
+
+  canGoToNextPeriod(): boolean {
+    return this.dateWindowStartIndex + this.periodSize < this.availableDates.length;
+  }
+
+  goToPreviousPeriod(): void {
+    if (!this.canGoToPreviousPeriod()) return;
+    this.dateWindowStartIndex = Math.max(0, this.dateWindowStartIndex - this.periodSize);
+    this.ensureSelectedDateVisible();
+  }
+
+  goToNextPeriod(): void {
+    if (!this.canGoToNextPeriod()) return;
+    this.dateWindowStartIndex = Math.min(
+      this.availableDates.length - 1,
+      this.dateWindowStartIndex + this.periodSize
+    );
+    this.ensureSelectedDateVisible();
+  }
+
+  getCurrentPeriodLabel(): string {
+    const visibleDates = this.getVisibleDates();
+    if (!visibleDates.length) return '';
+
+    const first = this.formatDateLabel(visibleDates[0]);
+    const last = this.formatDateLabel(visibleDates[visibleDates.length - 1]);
+    return `${first} - ${last}`;
   }
 
   selectSlot(slot: Slot): void {
@@ -181,7 +222,28 @@ export class BookingPageComponent implements OnInit {
 
   getDisplayedYear(): string {
     if (this.selectedDate) return this.selectedDate.substring(0, 4);
-    if (!this.availableDates.length) return '2026';
-    return this.availableDates[0].substring(0, 4);
+    const visibleDates = this.getVisibleDates();
+    if (!visibleDates.length) return '2026';
+    return visibleDates[0].substring(0, 4);
+  }
+
+  private getDefaultWindowStartIndex(): number {
+    if (!this.availableDates.length) return 0;
+
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const firstFutureIndex = this.availableDates.findIndex(date => date >= todayString);
+
+    return firstFutureIndex >= 0 ? firstFutureIndex : 0;
+  }
+
+  private ensureSelectedDateVisible(): void {
+    if (!this.selectedDate) return;
+
+    const visibleDates = this.getVisibleDates();
+    if (!visibleDates.includes(this.selectedDate)) {
+      this.selectedDate = null;
+      this.selectedSlot = null;
+    }
   }
 }

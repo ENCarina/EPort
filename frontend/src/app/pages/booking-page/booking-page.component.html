@@ -30,9 +30,18 @@
         <p *ngIf="getDisplayedYear()" class="slot-year">
           Év: {{ getDisplayedYear() }}
         </p>
+        <div class="period-nav" *ngIf="availableDates.length > 0">
+          <button type="button" class="btn" [disabled]="!canGoToPreviousPeriod()" (click)="goToPreviousPeriod()">
+            <
+          </button>
+          <span>{{ getCurrentPeriodLabel() }}</span>
+          <button type="button" class="btn" [disabled]="!canGoToNextPeriod()" (click)="goToNextPeriod()">
+            >
+          </button>
+        </div>
         <div class="slots-selection">
           <button
-            *ngFor="let date of availableDates"
+            *ngFor="let date of getVisibleDates()"
             [class.selected]="selectedDate === date"
             class="slot-option"
             (click)="selectDate(date)"
