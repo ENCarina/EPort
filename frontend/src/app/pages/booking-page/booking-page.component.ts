@@ -27,6 +27,10 @@ export class BookingPageComponent implements OnInit {
   bookingLoading: boolean = false;
   preselectedStaffId: number | null = null;
   canBookAppointments: boolean = false;
+  canCreatePatientBooking: boolean = false;
+  patientName: string = '';
+  patientEmail: string = '';
+  patientTaj: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +44,7 @@ export class BookingPageComponent implements OnInit {
   ngOnInit(): void {
     this.authService.user$.subscribe(user => {
       this.canBookAppointments = user?.roleId === 0;
+      this.canCreatePatientBooking = user?.roleId === 2;
     });
 
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
@@ -151,8 +156,8 @@ export class BookingPageComponent implements OnInit {
   }
 
   handleBooking(): void {
-    if (!this.canBookAppointments) {
-      this.error = 'Időpontot csak páciensként lehet foglalni. A szabad idősávok megtekintése elérhető.';
+    if (!this.canBookAppointments && !this.canCreatePatientBooking) {
+      this.error = 'Ehhez nincs jogosultság. Csak páciens vagy vezető asszisztens hozhat létre foglalást.';
       return;
     }
 
@@ -161,13 +166,28 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
+    if (this.canCreatePatientBooking && (!this.patientName || !this.patientEmail || !this.patientTaj)) {
+      this.error = 'Új páciens felvételéhez adja meg a nevet, email címet és TAJ számot.';
+      return;
+    }
+
     this.bookingLoading = true;
-    this.bookingService.createBooking({
+    const payload: any = {
       slotId: this.selectedSlot.id,
       notes: this.notes
-    }).subscribe({
+    };
+
+    if (this.canCreatePatientBooking) {
+      payload.patientName = this.patientName;
+      payload.patientEmail = this.patientEmail;
+      payload.patientTaj = this.patientTaj;
+    }
+
+    this.bookingService.createBooking(payload).subscribe({
       next: () => {
-        alert('Időpont sikeresen lefoglalva!');
+        alert(this.canCreatePatientBooking
+          ? 'Új páciens felvéve és időpont sikeresen lefoglalva!'
+          : 'Időpont sikeresen lefoglalva!');
         this.bookingLoading = false;
         this.router.navigate(['/my-bookings']);
       },

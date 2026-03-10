@@ -79,17 +79,33 @@
         ></textarea>
       </div>
 
-      <div *ngIf="selectedSlot && !canBookAppointments" class="error-message" style="margin-bottom: 12px;">
-        Időpontot csak páciensként lehet foglalni. Ön most csak megtekintési módban van.
+      <div class="step" *ngIf="selectedSlot && canCreatePatientBooking">
+        <h2>5. lépés: Új páciens felvétele</h2>
+        <div class="form-group">
+          <label for="patientName">Páciens neve</label>
+          <input id="patientName" type="text" [(ngModel)]="patientName" name="patientName" placeholder="Pl. Kiss Anna" />
+        </div>
+        <div class="form-group">
+          <label for="patientEmail">Páciens email címe</label>
+          <input id="patientEmail" type="email" [(ngModel)]="patientEmail" name="patientEmail" placeholder="Pl. anna.kiss@email.com" />
+        </div>
+        <div class="form-group">
+          <label for="patientTaj">Páciens TAJ száma</label>
+          <input id="patientTaj" type="text" [(ngModel)]="patientTaj" name="patientTaj" placeholder="Pl. 123456789" />
+        </div>
+      </div>
+
+      <div *ngIf="selectedSlot && !canBookAppointments && !canCreatePatientBooking" class="error-message" style="margin-bottom: 12px;">
+        Ön most csak megtekintési módban van.
       </div>
 
       <button
-        *ngIf="selectedSlot && canBookAppointments"
+        *ngIf="selectedSlot && (canBookAppointments || canCreatePatientBooking)"
         (click)="handleBooking()"
         [disabled]="bookingLoading"
         class="btn btn-primary"
       >
-        {{ bookingLoading ? 'Foglalás...' : 'Foglalás megerősítése' }}
+        {{ bookingLoading ? 'Foglalás...' : (canCreatePatientBooking ? 'Páciens felvétele és foglalás' : 'Foglalás megerősítése') }}
       </button>
     </div>
   </div>

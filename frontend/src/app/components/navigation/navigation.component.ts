@@ -10,6 +10,7 @@ import { filter } from 'rxjs/operators';
 })
 export class NavigationComponent implements OnInit {
   userName: string | null = null;
+  userRoleId: number | null = null;
   currentPath: string = '';
 
   constructor(
@@ -20,6 +21,7 @@ export class NavigationComponent implements OnInit {
   ngOnInit(): void {
     this.authService.user$.subscribe(user => {
       this.userName = user?.name || null;
+      this.userRoleId = user?.roleId ?? null;
     });
 
     this.router.events
@@ -35,5 +37,9 @@ export class NavigationComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  getMyBookingsLabel(): string {
+    return this.userRoleId === 2 ? 'Időpontok' : 'Időpontjaim';
   }
 }

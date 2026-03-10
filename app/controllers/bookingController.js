@@ -1,6 +1,7 @@
 import { BookingService } from '../services/bookingService.js';
 import db from '../models/modrels.js';
 import { EmailService } from '../services/emailService.js';
+import bcrypt from 'bcryptjs';
 
 const BookingController = {
     async index(req, res) {
@@ -29,7 +30,7 @@ const BookingController = {
             const bookings = await db.Booking.findAll({
                 where: whereClause,
                 include: [
-                    { model: db.User, as: 'patient', attributes: ['name', 'email'] },
+                    { model: db.User, as: 'patient', attributes: ['name', 'email', 'taj'] },
                     { model: db.Staff, as: 'doctor', include: [{ model: db.User, attributes: ['name'] }], attributes: ['id', 'specialty'] },
                     { model: db.Slot, attributes: ['date', 'startTime', 'endTime'] },
                     { model: db.Consultation, as: 'type', attributes: ['name', 'price'] }
@@ -78,11 +79,42 @@ const BookingController = {
 
         const currentUserId = req.user?.id || req.userId;
         const currentUserRole = req.user?.roleId;
-        const { slotId, consultationId } = req.body;
+        const { slotId, consultationId, patientName, patientEmail, patientTaj } = req.body;
 
         if (!currentUserId) throw new Error("Nincs bejelentkezett felhasználó!");
-        if (currentUserRole !== 0) {
-            throw new Error('Csak páciens jogosultsággal lehet időpontot foglalni.');
+
+        let targetPatientId = currentUserId;
+
+        if (currentUserRole === 2) {
+            if (!patientName || !patientEmail || !patientTaj) {
+                throw new Error('Admin foglaláshoz kötelező: páciens neve, email címe és TAJ száma.');
+            }
+
+            let patientUser = await db.User.findOne({ where: { email: patientEmail }, transaction: t });
+
+            if (patientUser) {
+                if (patientUser.roleId !== 0) {
+                    throw new Error('A megadott email címmel létező felhasználó nem páciens szerepkörű.');
+                }
+
+                await patientUser.update({
+                    name: patientName,
+                    taj: patientTaj
+                }, { transaction: t });
+            } else {
+                const generatedPassword = bcrypt.hashSync(`temp-${Date.now()}`, 10);
+                patientUser = await db.User.create({
+                    name: patientName,
+                    email: patientEmail,
+                    taj: patientTaj,
+                    password: generatedPassword,
+                    roleId: 0
+                }, { transaction: t });
+            }
+
+            targetPatientId = patientUser.id;
+        } else if (currentUserRole !== 0) {
+            throw new Error('Csak páciens vagy vezető asszisztens hozhat létre foglalást.');
         }
 
         // 1. Slot lekérése tranzakcióval
@@ -97,7 +129,7 @@ const BookingController = {
         }
 
         // 3. Felhasználó és Konzultáció ellenőrzése
-        const userExists = await db.User.findByPk(currentUserId, { transaction: t });
+        const userExists = await db.User.findByPk(targetPatientId, { transaction: t });
         const targetConsultationId = consultationId || slot.consultationId;
         const consultationExists = await db.Consultation.findByPk(targetConsultationId, { transaction: t });
 
@@ -111,7 +143,7 @@ const BookingController = {
         // 5. Booking létrehozása
         const newBooking = await db.Booking.create({
             name: `Foglalás - ${userExists.name || currentUserId}`,
-            patientId: currentUserId, 
+            patientId: targetPatientId,
             staffId: slot.staffId,
             slotId: slot.id,
             consultationId: targetConsultationId,

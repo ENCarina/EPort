@@ -9,6 +9,9 @@ export interface Booking {
   staffId: number;
   status: string;
   notes?: string;
+  patientName?: string;
+  patientEmail?: string;
+  patientTaj?: string;
   createdAt?: string;
   slot?: any;
   staff?: any;
