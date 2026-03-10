@@ -22,6 +22,8 @@ const BookingController = {
                 }
 
                 whereClause = { staffId: staffRecord.id };
+            } else if (currentUserRole === 2) {
+                whereClause = {};
             }
             
             const bookings = await db.Booking.findAll({
@@ -75,9 +77,13 @@ const BookingController = {
         t = await db.sequelize.transaction();
 
         const currentUserId = req.user?.id || req.userId;
+        const currentUserRole = req.user?.roleId;
         const { slotId, consultationId } = req.body;
 
         if (!currentUserId) throw new Error("Nincs bejelentkezett felhasználó!");
+        if (currentUserRole !== 0) {
+            throw new Error('Csak páciens jogosultsággal lehet időpontot foglalni.');
+        }
 
         // 1. Slot lekérése tranzakcióval
         const slot = await db.Slot.findByPk(slotId, { transaction: t });
@@ -196,7 +202,9 @@ const BookingController = {
             const booking = await db.Booking.findByPk(req.params.id);
             if (!booking) throw new Error("Foglalás nem található!");
 
-            if (currentUserRole === 1) {
+            if (currentUserRole === 2) {
+                // Admin (vezető asszisztens) bármely foglalást törölhet.
+            } else if (currentUserRole === 1) {
                 const staffRecord = await db.Staff.findOne({ where: { userId: currentUserId } });
                 if (!staffRecord || booking.staffId !== staffRecord.id) {
                     await t.rollback();

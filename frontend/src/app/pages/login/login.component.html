@@ -38,22 +38,40 @@
     <div class="demo-section">
       <p class="demo-label">Tesztelés?</p>
       <button type="button" (click)="handleDemoLogin()" [disabled]="loading" class="btn btn-demo">
-        Demo Admin Belépés
+        Belépés páciensként (demo)
       </button>
-      <button type="button" (click)="toggleDoctorLogins()" [disabled]="loading" class="btn btn-demo">
-        Belépés orvosként
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <button type="button" (click)="toggleDoctorLogins()" [disabled]="loading" class="btn btn-demo">
+          Belépés orvosként
+        </button>
+        <button type="button" (click)="toggleAdminLogins()" [disabled]="loading" class="btn btn-demo">
+          Belépés adminként
+        </button>
+      </div>
 
-      <div *ngIf="showDoctorLogins" class="doctor-login-list">
+      <div *ngIf="showDoctorLogins" class="doctor-login-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
         <p class="demo-label">Válasszon orvost:</p>
         <button
           type="button"
           *ngFor="let doctor of doctorAccounts"
           (click)="handleDoctorLogin(doctor.email)"
           [disabled]="loading"
-          class="btn btn-demo"
+          class="btn btn-primary"
         >
           {{ doctor.name }}
+        </button>
+      </div>
+
+      <div *ngIf="showAdminLogins" class="doctor-login-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+        <p class="demo-label">Válasszon vezető asszisztenst:</p>
+        <button
+          type="button"
+          *ngFor="let assistant of assistantAccounts"
+          (click)="handleAdminLogin(assistant.email)"
+          [disabled]="loading"
+          class="btn btn-primary"
+        >
+          {{ assistant.name }}
         </button>
       </div>
     </div>

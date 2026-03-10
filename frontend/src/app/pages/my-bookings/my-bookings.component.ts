@@ -12,6 +12,7 @@ export class MyBookingsComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   isDoctor: boolean = false;
+  isAdmin: boolean = false;
 
   constructor(
     private bookingService: BookingService,
@@ -21,6 +22,7 @@ export class MyBookingsComponent implements OnInit {
   ngOnInit(): void {
     this.authService.user$.subscribe(user => {
       this.isDoctor = user?.roleId === 1;
+      this.isAdmin = user?.roleId === 2;
     });
     this.fetchBookings();
   }
@@ -73,6 +75,10 @@ export class MyBookingsComponent implements OnInit {
   }
 
   getPartnerName(booking: any): string {
+    if (this.isAdmin) {
+      return booking.patient?.name || 'Páciens';
+    }
+
     if (this.isDoctor) {
       return booking.patient?.name || 'Páciens';
     }
@@ -81,6 +87,11 @@ export class MyBookingsComponent implements OnInit {
   }
 
   getPartnerSubtitle(booking: any): string {
+    if (this.isAdmin) {
+      const doctorName = booking.doctor?.user?.name || 'Nincs orvos';
+      return `Orvos: ${doctorName}`;
+    }
+
     if (this.isDoctor) {
       return booking.patient?.email || '';
     }
@@ -89,7 +100,19 @@ export class MyBookingsComponent implements OnInit {
   }
 
   getPartnerLabel(): string {
+    if (this.isAdmin) {
+      return 'Páciens';
+    }
+
     return this.isDoctor ? 'Páciens' : 'Szakember';
+  }
+
+  getPageTitle(): string {
+    if (this.isAdmin) {
+      return 'Összes foglalt időpont';
+    }
+
+    return this.isDoctor ? 'Pácienseim időpontjai' : 'Időpontjaim';
   }
 
   getConsultationType(booking: any): string {

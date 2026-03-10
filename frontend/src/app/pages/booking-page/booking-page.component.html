@@ -79,8 +79,12 @@
         ></textarea>
       </div>
 
+      <div *ngIf="selectedSlot && !canBookAppointments" class="error-message" style="margin-bottom: 12px;">
+        Időpontot csak páciensként lehet foglalni. Ön most csak megtekintési módban van.
+      </div>
+
       <button
-        *ngIf="selectedSlot"
+        *ngIf="selectedSlot && canBookAppointments"
         (click)="handleBooking()"
         [disabled]="bookingLoading"
         class="btn btn-primary"

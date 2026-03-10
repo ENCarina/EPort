@@ -15,10 +15,11 @@
       <div *ngIf="error" class="error-message">{{ error }}</div>
 
       <div class="booking-section">
-        <h2>Időpont foglalása</h2>
-        <p>Itt ugyanaz a foglalási folyamat indul, mint a felső "Időpont foglalás" menüpontban.</p>
+        <h2>{{ canBookAppointments ? 'Időpont foglalása' : 'Szabad időpontok megtekintése' }}</h2>
+        <p *ngIf="canBookAppointments">Itt ugyanaz a foglalási folyamat indul, mint a felső "Időpont foglalás" menüpontban.</p>
+        <p *ngIf="!canBookAppointments">Itt megtekintheti az orvos szabad időpontjait. Foglalni csak páciensként lehet.</p>
         <button (click)="goToBooking()" class="btn btn-primary">
-          Tovább a foglaláshoz
+          {{ canBookAppointments ? 'Tovább a foglaláshoz' : 'Tovább az időpontokhoz' }}
         </button>
       </div>
     </div>

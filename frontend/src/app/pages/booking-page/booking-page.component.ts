@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { StaffService } from '../../services/staff.service';
 import { SlotService, Slot } from '../../services/slot.service';
 import { BookingService } from '../../services/booking.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-booking-page',
@@ -25,16 +26,22 @@ export class BookingPageComponent implements OnInit {
   error: string = '';
   bookingLoading: boolean = false;
   preselectedStaffId: number | null = null;
+  canBookAppointments: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private staffService: StaffService,
     private slotService: SlotService,
     private bookingService: BookingService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.authService.user$.subscribe(user => {
+      this.canBookAppointments = user?.roleId === 0;
+    });
+
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
     this.preselectedStaffId = staffIdParam ? Number(staffIdParam) : null;
     this.fetchInitialData();
@@ -144,6 +151,11 @@ export class BookingPageComponent implements OnInit {
   }
 
   handleBooking(): void {
+    if (!this.canBookAppointments) {
+      this.error = 'Időpontot csak páciensként lehet foglalni. A szabad idősávok megtekintése elérhető.';
+      return;
+    }
+
     if (!this.selectedSlot) {
       this.error = 'Kérjük válasszon időpontot';
       return;

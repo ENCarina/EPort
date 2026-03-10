@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StaffService, Staff } from '../../services/staff.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-staff-listing',
@@ -11,13 +12,19 @@ export class StaffListingComponent implements OnInit {
   staff: any[] = [];
   loading: boolean = true;
   error: string = '';
+  canBookAppointments: boolean = false;
 
   constructor(
     private staffService: StaffService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.authService.user$.subscribe(user => {
+      this.canBookAppointments = user?.roleId === 0;
+    });
+
     this.fetchStaff();
   }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StaffService } from '../../services/staff.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-staff-detail',
@@ -12,11 +13,13 @@ export class StaffDetailComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   staffId: number = 0;
+  canBookAppointments: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private staffService: StaffService
+    private staffService: StaffService,
+    private authService: AuthService
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
@@ -25,6 +28,10 @@ export class StaffDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.authService.user$.subscribe(user => {
+      this.canBookAppointments = user?.roleId === 0;
+    });
+
     this.staffId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadData();
   }

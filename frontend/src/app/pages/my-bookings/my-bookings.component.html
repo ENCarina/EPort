@@ -3,7 +3,7 @@
   <div *ngIf="loading" class="loading">Betöltés...</div>
 
   <div *ngIf="!loading" class="bookings-container">
-    <h1>{{ isDoctor ? 'Pácienseim időpontjai' : 'Időpontjaim' }}</h1>
+    <h1>{{ getPageTitle() }}</h1>
 
     <div *ngIf="error" class="error-message">{{ error }}</div>
 

@@ -16,7 +16,7 @@
           class="btn btn-primary"
           (click)="startBooking(member)"
         >
-          Időpont foglalás
+          {{ canBookAppointments ? 'Időpont foglalás' : 'Szabad időpontok megtekintése' }}
         </button>
       </div>
 

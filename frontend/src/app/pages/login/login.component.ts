@@ -14,7 +14,9 @@ export class LoginComponent implements OnInit {
   error: string = '';
   loading: boolean = false;
   showDoctorLogins: boolean = false;
+  showAdminLogins: boolean = false;
   doctorAccounts: Array<{ name: string; email: string }> = [];
+  assistantAccounts: Array<{ name: string; email: string }> = [];
 
   constructor(
     private authService: AuthService,
@@ -45,7 +47,7 @@ export class LoginComponent implements OnInit {
     this.error = '';
     this.loading = true;
 
-    this.authService.login('admin@ep.com', 'joyEtna').subscribe({
+    this.authService.login('user@ep.com', 'test1243').subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
@@ -58,6 +60,10 @@ export class LoginComponent implements OnInit {
 
   toggleDoctorLogins(): void {
     this.showDoctorLogins = !this.showDoctorLogins;
+  }
+
+  toggleAdminLogins(): void {
+    this.showAdminLogins = !this.showAdminLogins;
   }
 
   handleDoctorLogin(email: string): void {
@@ -75,6 +81,21 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  handleAdminLogin(email: string): void {
+    this.error = '';
+    this.loading = true;
+
+    this.authService.login(email, 'joyEtna').subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.error = err.error?.message || 'Admin belépés sikertelen';
+        this.loading = false;
+      }
+    });
+  }
+
   private loadDoctorAccounts(): void {
     this.staffService.getStaff().subscribe({
       next: (response: any) => {
@@ -86,9 +107,18 @@ export class LoginComponent implements OnInit {
             email: member?.user?.email || ''
           }))
           .filter((doctor: { name: string; email: string }) => !!doctor.email);
+
+        this.assistantAccounts = staffData
+          .filter((member: any) => member?.user?.roleId === 2 || member?.role === 'staff')
+          .map((member: any) => ({
+            name: member?.specialty || member?.user?.name || 'Vezető asszisztens',
+            email: member?.user?.email || ''
+          }))
+          .filter((assistant: { name: string; email: string }) => !!assistant.email);
       },
       error: () => {
         this.doctorAccounts = [];
+        this.assistantAccounts = [];
       }
     });
   }
