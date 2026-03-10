@@ -13,8 +13,8 @@
         <p class="specialty">{{ getSpecialty(booking) }}</p>
         <p class="consultation">{{ getConsultationType(booking) }}</p>
         <p class="date-time">
-          {{ booking.Slot?.date && booking.Slot?.startTime 
-             ? formatDateTime(booking.Slot.date, booking.Slot.startTime)
+           {{ booking.slot?.date && booking.slot?.startTime 
+             ? formatDateTime(booking.slot.date, booking.slot.startTime)
              : (booking.startTime || booking.createdAt | date:'medium') }}
         </p>
         <p class="status">Állapot: {{ booking.status || 'Ütemezett' }}</p>

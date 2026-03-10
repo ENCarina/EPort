@@ -5,7 +5,7 @@ export async function up({ context: queryInterface }) {
     {
       name: 'Kardiológiai vizsgálat',
       patientId: 50,         // User
-      staffId: 101,         // Dr. Kovács Antal
+      staffId: 1,
       consultationId: 1,    // Ellenőrizd, hogy a consultations táblában van-e 1-es!
       slotId: 1,
       status: 'Confirmed',
@@ -20,13 +20,13 @@ export async function up({ context: queryInterface }) {
     {
       name: 'Parandontológiai kiműtét',
       patientId: 50,         // User
-      staffId: 102,         // Dr. Tóth Tünde
+      staffId: 2,
       consultationId: 2,    // Ellenőrizd a consultations táblát!
       slotId: 2,
       status: 'Confirmed',
-      duration: 60,
+      duration: 30,
       startTime: '2026-03-11T09:00:00.000Z',
-      endTime: '2026-03-11T10:00:00.000Z',
+      endTime: '2026-03-11T09:30:00.000Z',
       price: 15000,
       isPublic: 1,
       createdAt: new Date(),
@@ -35,13 +35,13 @@ export async function up({ context: queryInterface }) {
     {
       name: 'Pszichiátriai első konzultáció',
       patientId: 50,         // User
-      staffId: 103,         // Dr. House Greg
+      staffId: 3,
       consultationId: 3,    // Ellenőrizd a consultations táblát!
       slotId: 3,
       status: 'Confirmed',
-      duration: 60,
+      duration: 30,
       startTime: '2026-03-10T10:00:00.000Z',
-      endTime: '2026-03-10T11:00:00.000Z',
+      endTime: '2026-03-10T10:30:00.000Z',
       price: 35000,
       isPublic: 1,
       createdAt: new Date(),

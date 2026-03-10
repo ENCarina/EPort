@@ -1,29 +1,73 @@
 import db from '../../app/models/modrels.js';
+
+function generateHalfHourTimeSlots() {
+  const slots = [];
+
+  for (let hour = 8; hour < 20; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const startHour = String(hour).padStart(2, '0');
+      const startMinute = String(minute).padStart(2, '0');
+
+      const endTotalMinutes = hour * 60 + minute + 30;
+      const endHour = String(Math.floor(endTotalMinutes / 60)).padStart(2, '0');
+      const endMinute = String(endTotalMinutes % 60).padStart(2, '0');
+
+      slots.push({
+        startTime: `${startHour}:${startMinute}:00`,
+        endTime: `${endHour}:${endMinute}:00`
+      });
+    }
+  }
+
+  return slots;
+}
+
+function generateDateRange(startDate, endDate) {
+  const dates = [];
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+}
+
 async function up({context: QueryInterface}) {
 
   await QueryInterface.bulkDelete('slots', null, {});
-  
-  // const today = new Date();
-  // const nextMonday = new Date();
-  // nextMonday.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7 || 7));
-  // for (let i = 0; i < 5; i++) {
-  //   const currentdate = new Date(nextMonday);
-  //   currentdate. setDate(nextMonday.getDate() + i);
-  //   const dateStr = currentdate.toISOString().split('T')[0];
-  // }
 
-  const slotsData = [
-          { staffId: 1, consultationId: 1, date: '2026-03-10', startTime: '08:00:00', endTime: '09:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 1, consultationId: 1, date: '2026-03-10', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 1, consultationId: 1, date: '2026-03-11', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-11', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 3, date: '2026-03-11', startTime: '13:00:00', endTime: '14:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 3, date: '2026-03-12', startTime: '14:00:00', endTime: '15:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-12', startTime: '15:00:00', endTime: '16:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 2, consultationId: 2, date: '2026-03-12', startTime: '09:00:00', endTime: '10:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 3, date: '2026-03-10', startTime: '10:00:00', endTime: '11:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-          { staffId: 3, consultationId: 2, date: '2026-03-10', startTime: '13:00:00', endTime: '14:00:00', isAvailable: true, createdAt: new Date(), updatedAt: new Date()},
-  ];
+  const staffIds = [1, 2, 3];
+  const consultationByStaff = {
+    1: 1,
+    2: 2,
+    3: 3
+  };
+
+  const dates = generateDateRange(new Date('2026-03-10'), new Date('2026-06-30'));
+  const timeSlots = generateHalfHourTimeSlots();
+  const now = new Date();
+
+  const slotsData = [];
+
+  for (const date of dates) {
+    for (const staffId of staffIds) {
+      for (const timeSlot of timeSlots) {
+        slotsData.push({
+          staffId,
+          consultationId: consultationByStaff[staffId],
+          date,
+          startTime: timeSlot.startTime,
+          endTime: timeSlot.endTime,
+          isAvailable: true,
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+    }
+  }
+
     if (db && db.Slot) {
         await db.Slot.bulkCreate(slotsData);
       }else {

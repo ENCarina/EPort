@@ -1,12 +1,9 @@
 import db from '../../app/models/modrels.js';
 
 function generateTimeSlots() {
-  // Generate 30-minute intervals from 08:00 to 20:00
   const slots = [];
-  const startHour = 8;
-  const endHour = 20;
-  
-  for (let hour = startHour; hour < endHour; hour++) {
+
+  for (let hour = 8; hour < 20; hour++) {
     for (let minute = 0; minute < 60; minute += 30) {
       const startHourStr = String(hour).padStart(2, '0');
       const minuteStr = String(minute).padStart(2, '0');
@@ -32,6 +29,18 @@ function generateTimeSlots() {
   return slots;
 }
 
+function generateDateRange(startDate, endDate) {
+  const dates = [];
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+}
+
 async function up({context: QueryInterface}) {
 
   await QueryInterface.bulkDelete('slots', null, {});
@@ -39,11 +48,13 @@ async function up({context: QueryInterface}) {
   const timeSlots = generateTimeSlots();
   const staffIds = [1, 2, 3];
   const consultationIds = [1, 2, 3];
-  const dates = ['2026-03-10', '2026-03-11', '2026-03-12', '2026-03-13', '2026-03-14'];
+  const dates = generateDateRange(new Date('2026-03-10'), new Date('2026-06-30'));
   
   const slotsData = [];
   
   // Generate slots for each combination of staff, consultation, and date
+  const now = new Date();
+
   dates.forEach(date => {
     staffIds.forEach((staffId, staffIdx) => {
       timeSlots.forEach(timeSlot => {
@@ -54,8 +65,8 @@ async function up({context: QueryInterface}) {
           startTime: timeSlot.startTime,
           endTime: timeSlot.endTime,
           isAvailable: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          createdAt: now,
+          updatedAt: now
         });
       });
     });

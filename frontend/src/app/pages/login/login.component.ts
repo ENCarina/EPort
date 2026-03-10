@@ -37,7 +37,7 @@ export class LoginComponent {
     this.error = '';
     this.loading = true;
 
-    this.authService.login('admin@example.com', 'admin').subscribe({
+    this.authService.login('admin@ep.com', 'joyEtna').subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },

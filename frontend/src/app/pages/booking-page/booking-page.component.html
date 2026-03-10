@@ -26,23 +26,42 @@
       </div>
 
       <div class="step" *ngIf="selectedStaff">
-        <h2>2. lépés: Válasszon időpontot</h2>
+        <h2>2. lépés: Válasszon napot</h2>
+        <p *ngIf="getDisplayedYear()" class="slot-year">
+          Év: {{ getDisplayedYear() }}
+        </p>
         <div class="slots-selection">
           <button
-            *ngFor="let slot of slots"
+            *ngFor="let date of availableDates"
+            [class.selected]="selectedDate === date"
+            class="slot-option"
+            (click)="selectDate(date)"
+          >
+            {{ formatDateLabel(date) }}
+          </button>
+
+          <p *ngIf="availableDates.length === 0">Nincsenek elérhető napok</p>
+        </div>
+      </div>
+
+      <div class="step" *ngIf="selectedDate">
+        <h2>3. lépés: Válasszon időpontot</h2>
+        <div class="slots-selection">
+          <button
+            *ngFor="let slot of getSlotsForSelectedDate()"
             [class.selected]="selectedSlot?.id === slot.id"
             class="slot-option"
             (click)="selectSlot(slot)"
           >
-            {{ formatSlotDateTime(slot) }}
+            {{ formatTimeRange(slot) }}
           </button>
 
-          <p *ngIf="slots.length === 0">Nincsenek elérhető időpontok</p>
+          <p *ngIf="getSlotsForSelectedDate().length === 0">Nincsenek elérhető idősávok ezen a napon</p>
         </div>
       </div>
 
       <div class="step" *ngIf="selectedSlot">
-        <h2>3. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
+        <h2>4. lépés: Megjegyzések hozzáadása (nem kötelező)</h2>
         <textarea
           [(ngModel)]="notes"
           name="notes"

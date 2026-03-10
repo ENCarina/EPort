@@ -51,15 +51,21 @@ export class MyBookingsComponent implements OnInit {
   formatDateTime(date: string, time: string): string {
     if (!date || !time) return '';
     // Convert 2026-03-10 to 2026.03.10.
-    let formattedDate = date.replace(/[-]/g, '.');
+    let formattedDate = date.substring(0, 10).replace(/[-]/g, '.');
     if (!formattedDate.endsWith('.')) {
       formattedDate += '.';
     }
-    return `${formattedDate} ${time.substring(0, 5)}`;
+
+    const parsedTime = new Date(time);
+    const formattedTime = isNaN(parsedTime.getTime())
+      ? time.substring(0, 5)
+      : parsedTime.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+
+    return `${formattedDate} ${formattedTime}`;
   }
 
   getStaffName(booking: any): string {
-    return booking.doctor?.User?.name || booking.staffName || 'Szakember';
+    return booking.doctor?.user?.name || booking.staffName || 'Szakember';
   }
 
   getSpecialty(booking: any): string {

@@ -1,5 +1,6 @@
 import { BookingService } from '../services/bookingService.js';
 import db from '../models/modrels.js';
+import { EmailService } from '../services/emailService.js';
 
 const BookingController = {
     async index(req, res) {
@@ -85,7 +86,8 @@ const BookingController = {
         if (!consultationExists) throw new Error("A konzultációs típus nem található!");
 
         // 4. Időpont formázása
-        const fullStartTime = new Date(`${slot.date} ${slot.startTime || "09:00:00"}`);
+        const fullStartTime = new Date(`${slot.date}T${slot.startTime || "09:00:00"}`);
+        const fullEndTime = new Date(`${slot.date}T${slot.endTime || "09:30:00"}`);
 
         // 5. Booking létrehozása
         const newBooking = await db.Booking.create({
@@ -96,6 +98,7 @@ const BookingController = {
             consultationId: targetConsultationId,
             duration: consultationExists.duration || 30,
             startTime: fullStartTime,
+            endTime: fullEndTime,
             status: 'Confirmed',
             price: consultationExists.price || 0,
             isPublic: false,
@@ -120,7 +123,9 @@ const BookingController = {
         });
 
     } catch (error) {
-        if (t) await t.rollback();
+        if (t && !t.finished) {
+            await t.rollback();
+        }
         console.error("FOGLALÁSI HIBA:", error.message);
         return res.status(400).json({
             success: false,
