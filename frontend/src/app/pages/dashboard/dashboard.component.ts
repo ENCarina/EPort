@@ -77,6 +77,18 @@ export class DashboardComponent implements OnInit {
     return 'Saját statisztikák';
   }
 
+  isPatientView(): boolean {
+    return this.roleId === 0;
+  }
+
+  getTotalBookingsLabel(): string {
+    return this.isPatientView() ? 'Saját foglalások' : 'Foglalások összesen';
+  }
+
+  getTopServicesTitle(): string {
+    return this.isPatientView() ? 'Leggyakoribb szolgáltatásai' : 'Népszerű szolgáltatások';
+  }
+
   private countUpcomingBookings(bookingsData: any[]): number {
     const now = new Date();
     return bookingsData.filter((booking: any) => {

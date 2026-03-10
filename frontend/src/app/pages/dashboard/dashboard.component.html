@@ -10,18 +10,18 @@
     <div *ngIf="error" class="error-message">{{ error }}</div>
 
     <div class="dashboard-grid stats-grid">
-      <div class="dashboard-card stat-card">
+      <div class="dashboard-card stat-card" *ngIf="!isPatientView()">
         <h3>Szakemberek összesen</h3>
         <p class="dashboard-number">{{ staffCount }}</p>
       </div>
 
-      <div class="dashboard-card stat-card">
+      <div class="dashboard-card stat-card" *ngIf="!isPatientView()">
         <h3>Orvosok száma</h3>
         <p class="dashboard-number">{{ doctorCount }}</p>
       </div>
 
       <div class="dashboard-card stat-card">
-        <h3>Foglalások összesen</h3>
+        <h3>{{ getTotalBookingsLabel() }}</h3>
         <p class="dashboard-number">{{ totalBookings }}</p>
       </div>
 
@@ -30,7 +30,7 @@
         <p class="dashboard-number">{{ upcomingBookings }}</p>
       </div>
 
-      <div class="dashboard-card stat-card">
+      <div class="dashboard-card stat-card" *ngIf="!isPatientView()">
         <h3>Átlag foglalás / orvos</h3>
         <p class="dashboard-number">{{ avgBookingsPerDoctor }}</p>
       </div>
@@ -38,7 +38,7 @@
 
     <div class="dashboard-grid ranking-grid">
       <div class="dashboard-card ranking-card">
-        <h3>Népszerű szolgáltatások</h3>
+        <h3>{{ getTopServicesTitle() }}</h3>
         <div *ngIf="topServices.length > 0; else noServiceStats">
           <div *ngFor="let item of topServices" class="ranking-row">
             <span>{{ item.name }}</span>
@@ -50,7 +50,7 @@
         </ng-template>
       </div>
 
-      <div class="dashboard-card ranking-card">
+      <div class="dashboard-card ranking-card" *ngIf="!isPatientView()">
         <h3>Legterheltebb orvosok</h3>
         <div *ngIf="topDoctors.length > 0; else noDoctorStats">
           <div *ngFor="let item of topDoctors" class="ranking-row stacked">
