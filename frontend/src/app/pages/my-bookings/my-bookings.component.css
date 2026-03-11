@@ -149,4 +149,38 @@
   .bookings-list {
     grid-template-columns: 1fr;
   }
+
+  .booking-card {
+    padding-right: 14px;
+  }
+
+  .note-info-wrap {
+    position: static;
+    margin: 6px 0 10px;
+  }
+
+  .note-tooltip {
+    position: static;
+    width: 100%;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    margin-top: 8px;
+  }
+
+  .note-tooltip::before {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bookings-list {
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .main-content {
+    padding: 12px;
+  }
 }

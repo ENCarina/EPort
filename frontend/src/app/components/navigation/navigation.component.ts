@@ -12,6 +12,7 @@ export class NavigationComponent implements OnInit {
   userName: string | null = null;
   userRoleId: number | null = null;
   currentPath: string = '';
+  isMenuOpen: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -28,6 +29,7 @@ export class NavigationComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.currentPath = event.url;
+        this.closeMenu();
       });
   }
 
@@ -36,10 +38,19 @@ export class NavigationComponent implements OnInit {
   }
 
   logout(): void {
+    this.closeMenu();
     this.authService.logout();
   }
 
   getMyBookingsLabel(): string {
     return this.userRoleId === 2 ? 'Időpontok' : 'Időpontjaim';
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 }

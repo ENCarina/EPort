@@ -180,3 +180,31 @@
     gap: 4px;
   }
 }
+
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 20px;
+  }
+
+  .ranking-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-list {
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .dashboard-card {
+    padding: 12px;
+  }
+
+  .dashboard-number {
+    font-size: 1.55rem;
+  }
+}

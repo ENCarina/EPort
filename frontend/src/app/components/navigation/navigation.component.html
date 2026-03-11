@@ -4,12 +4,19 @@
       Magánklinika
     </a>
 
-    <ul class="nav-menu">
+    <button type="button" class="nav-toggle" (click)="toggleMenu()" [attr.aria-expanded]="isMenuOpen">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <ul class="nav-menu" [class.open]="isMenuOpen">
       <li>
         <a
           routerLink="/dashboard"
           [class.active]="isActive('/dashboard')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           Vezérlőpult
         </a>
@@ -19,6 +26,7 @@
           routerLink="/staff"
           [class.active]="isActive('/staff')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           Szakemberek
         </a>
@@ -28,6 +36,7 @@
           routerLink="/booking"
           [class.active]="isActive('/booking')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           Időpont foglalása
         </a>
@@ -37,6 +46,7 @@
           routerLink="/my-bookings"
           [class.active]="isActive('/my-bookings')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           {{ getMyBookingsLabel() }}
         </a>
@@ -46,6 +56,7 @@
           routerLink="/patients"
           [class.active]="isActive('/patients')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           Páciensek
         </a>
@@ -55,13 +66,14 @@
           routerLink="/profile"
           [class.active]="isActive('/profile')"
           class="nav-link"
+          (click)="closeMenu()"
         >
           Profil
         </a>
       </li>
     </ul>
 
-    <div class="nav-user">
+    <div class="nav-user" [class.open]="isMenuOpen">
       <span class="user-name">{{ userName }}</span>
       <button (click)="logout()" class="btn btn-logout">
         Kijelentkezés

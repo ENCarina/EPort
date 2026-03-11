@@ -76,3 +76,28 @@
 .btn {
   width: 100%;
 }
+
+@media (max-width: 1024px) {
+  .staff-grid {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .image-wrap {
+    height: 190px;
+  }
+}
+
+@media (max-width: 680px) {
+  .main-content {
+    padding: 14px;
+  }
+
+  .staff-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-wrap {
+    height: 210px;
+  }
+}

@@ -140,11 +140,44 @@
     padding: 16px;
   }
 
+  .patient-header {
+    align-items: flex-start;
+  }
+
+  .patient-header-right {
+    flex-shrink: 0;
+  }
+
   .booking-row {
     flex-direction: column;
   }
 
   .booking-row-right {
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 1024px) {
+  .patients-page {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .patient-header {
+    flex-direction: column;
+  }
+
+  .patient-header p {
+    font-size: 0.84rem;
+  }
+
+  .patient-expanded {
+    padding: 10px;
   }
 }
