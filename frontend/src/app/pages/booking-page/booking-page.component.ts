@@ -31,6 +31,7 @@ export class BookingPageComponent implements OnInit {
   preselectedStaffId: number | null = null;
   preselectedConsultationId: number | null = null;
   autoSelectStaffForConsultation: boolean = false;
+  staffSelectionLocked: boolean = false;
   canBookAppointments: boolean = false;
   canCreatePatientBooking: boolean = false;
   patientName: string = '';
@@ -54,18 +55,20 @@ export class BookingPageComponent implements OnInit {
     this.authService.user$.subscribe(user => {
       const roleId = Number(user?.roleId);
       this.canBookAppointments = roleId === 0;
-      this.canCreatePatientBooking = roleId === 2;
+      this.canCreatePatientBooking = roleId === 2 || roleId === 1;
     });
 
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
     const consultationIdParam = this.route.snapshot.queryParamMap.get('consultationId');
     const autoStaffParam = this.route.snapshot.queryParamMap.get('autoStaff');
+    const lockStaffParam = this.route.snapshot.queryParamMap.get('lockStaff');
     const patientNameParam = this.route.snapshot.queryParamMap.get('patientName');
     const patientEmailParam = this.route.snapshot.queryParamMap.get('patientEmail');
     const patientTajParam = this.route.snapshot.queryParamMap.get('patientTaj');
     this.preselectedStaffId = staffIdParam ? Number(staffIdParam) : null;
     this.preselectedConsultationId = consultationIdParam ? Number(consultationIdParam) : null;
     this.autoSelectStaffForConsultation = autoStaffParam === '1';
+    this.staffSelectionLocked = lockStaffParam === '1';
 
     if (patientNameParam) this.patientName = patientNameParam;
     if (patientEmailParam) this.patientEmail = patientEmailParam;
@@ -108,6 +111,10 @@ export class BookingPageComponent implements OnInit {
   }
 
   handleStaffSelect(staffMember: any): void {
+    if (this.staffSelectionLocked && this.selectedStaff && this.selectedStaff.id !== staffMember.id) {
+      return;
+    }
+
     this.selectedStaff = staffMember;
     this.selectedConsultation = null;
     this.selectedDate = null;
@@ -295,7 +302,7 @@ export class BookingPageComponent implements OnInit {
 
   handleBooking(): void {
     if (!this.canBookAppointments && !this.canCreatePatientBooking) {
-      this.error = 'Ehhez nincs jogosultság. Csak páciens vagy vezető asszisztens hozhat létre foglalást.';
+      this.error = 'Ehhez nincs jogosultság. Csak páciens, orvos vagy vezető asszisztens hozhat létre foglalást.';
       return;
     }
 

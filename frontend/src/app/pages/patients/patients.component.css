@@ -6,6 +6,11 @@
   margin-bottom: 12px;
 }
 
+.doctor-note {
+  margin: 0 0 12px;
+  color: #475467;
+}
+
 .patients-toolbar {
   margin-bottom: 12px;
 }

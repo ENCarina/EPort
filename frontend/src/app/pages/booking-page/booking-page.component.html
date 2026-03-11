@@ -15,8 +15,16 @@
       </p>
     </div>
 
+    <div *ngIf="staffSelectionLocked && selectedStaff && !isQuickBookingMode()" class="step quick-booking-summary">
+      <h2>Kijelölt orvos</h2>
+      <p>
+        A foglalás a saját praxishoz tartozik.<br />
+        Kijelölt orvos: <strong>{{ getStaffName(selectedStaff) }}</strong>
+      </p>
+    </div>
+
     <div class="booking-steps">
-      <div class="step" *ngIf="!isQuickBookingMode()">
+      <div class="step" *ngIf="!isQuickBookingMode() && !staffSelectionLocked">
         <h2>1. lépés: Válasszon egészségügyi szakembert</h2>
         <div class="staff-selection">
           <div

@@ -4,6 +4,7 @@
 
   <div *ngIf="!loading" class="patients-page">
     <h1>Páciensek</h1>
+    <p *ngIf="isDoctor && !isAdmin" class="doctor-note">Az összes páciens listája. Lenyitva csak a saját praxisához tartozó időpontokat látja.</p>
 
     <div *ngIf="error" class="error-message">{{ error }}</div>
 
@@ -46,10 +47,10 @@
           </div>
 
           <ng-template #noBookings>
-            <p class="empty-bookings">Még nincs korábbi foglalás.</p>
+            <p class="empty-bookings">Nincs a praxisához tartozó korábbi foglalás.</p>
           </ng-template>
 
-          <button type="button" class="btn btn-primary" (click)="startBookingForPatient(patient)">
+          <button *ngIf="isAdmin || isDoctor" type="button" class="btn btn-primary" (click)="startBookingForPatient(patient)">
             Új foglalás létrehozása a páciensnek
           </button>
         </div>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { BookingService } from '../../services/booking.service';
 import { AuthService } from '../../services/auth.service';
+import { StaffService } from '../../services/staff.service';
 
 @Component({
   selector: 'app-patients',
@@ -18,24 +19,31 @@ export class PatientsComponent implements OnInit {
   loading: boolean = true;
   error: string = '';
   isAdmin: boolean = false;
+  isDoctor: boolean = false;
+  currentUserId: number | null = null;
+  currentDoctorStaffId: number | null = null;
 
   constructor(
     private userService: UserService,
     private bookingService: BookingService,
     private authService: AuthService,
+    private staffService: StaffService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.authService.user$.subscribe((user) => {
       this.isAdmin = Number(user?.roleId) === 2;
-      if (!this.isAdmin) {
+      this.isDoctor = Number(user?.roleId) === 1;
+      this.currentUserId = user?.id ? Number(user.id) : null;
+
+      if (!this.isAdmin && !this.isDoctor) {
         this.error = 'A páciensek oldal csak admin számára elérhető.';
         this.loading = false;
       }
     });
 
-    if (this.isAdmin) {
+    if (this.isAdmin || this.isDoctor) {
       this.loadPatientsAndBookings();
     }
   }
@@ -72,13 +80,20 @@ export class PatientsComponent implements OnInit {
   }
 
   startBookingForPatient(patient: any): void {
+    const queryParams: any = {
+      patientId: patient.id,
+      patientName: patient.name || '',
+      patientEmail: patient.email || '',
+      patientTaj: patient.taj || ''
+    };
+
+    if (this.isDoctor && this.currentDoctorStaffId) {
+      queryParams.staffId = this.currentDoctorStaffId;
+      queryParams.lockStaff = '1';
+    }
+
     this.router.navigate(['/booking'], {
-      queryParams: {
-        patientId: patient.id,
-        patientName: patient.name || '',
-        patientEmail: patient.email || '',
-        patientTaj: patient.taj || ''
-      }
+      queryParams
     });
   }
 
@@ -98,29 +113,54 @@ export class PatientsComponent implements OnInit {
   private loadPatientsAndBookings(): void {
     this.loading = true;
 
-    this.userService.getUsers().subscribe({
-      next: (usersResponse: any) => {
-        const users = usersResponse?.data || usersResponse || [];
-        this.patients = users
-          .filter((user: any) => Number(user.roleId) === 0)
-          .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || '', 'hu'));
-        this.updatePatientFilter();
+    const loadUsersAndBookings = () => {
+      this.userService.getUsers().subscribe({
+        next: (usersResponse: any) => {
+          const users = usersResponse?.data || usersResponse || [];
+          this.patients = users
+            .filter((user: any) => Number(user.roleId) === 0)
+            .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || '', 'hu'));
+          this.updatePatientFilter();
 
-        this.bookingService.getBookings().subscribe({
-          next: (bookingsResponse: any) => {
-            this.bookings = bookingsResponse?.data || bookingsResponse || [];
-            this.loading = false;
-          },
-          error: () => {
-            this.error = 'Nem sikerült betölteni a páciens foglalásokat.';
-            this.loading = false;
-          }
-        });
-      },
-      error: () => {
-        this.error = 'Nem sikerült betölteni a pácienseket.';
-        this.loading = false;
-      }
-    });
+          this.bookingService.getBookings().subscribe({
+            next: (bookingsResponse: any) => {
+              this.bookings = bookingsResponse?.data || bookingsResponse || [];
+              this.loading = false;
+            },
+            error: () => {
+              this.error = 'Nem sikerült betölteni a páciens foglalásokat.';
+              this.loading = false;
+            }
+          });
+        },
+        error: () => {
+          this.error = 'Nem sikerült betölteni a pácienseket.';
+          this.loading = false;
+        }
+      });
+    };
+
+    if (this.isDoctor && this.currentUserId) {
+      this.staffService.getStaff().subscribe({
+        next: (staffResponse: any) => {
+          const staffList = staffResponse?.data || staffResponse || [];
+          const doctorStaff = staffList.find((member: any) =>
+            Number(member?.userId) === this.currentUserId ||
+            Number(member?.User?.id) === this.currentUserId ||
+            Number(member?.user?.id) === this.currentUserId
+          );
+
+          this.currentDoctorStaffId = doctorStaff?.id ? Number(doctorStaff.id) : null;
+          loadUsersAndBookings();
+        },
+        error: () => {
+          this.currentDoctorStaffId = null;
+          loadUsersAndBookings();
+        }
+      });
+      return;
+    }
+
+    loadUsersAndBookings();
   }
 }
