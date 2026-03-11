@@ -3,9 +3,14 @@
   <div *ngIf="loading" class="loading">Betöltés...</div>
 
   <div *ngIf="!loading" class="booking-page">
-    <h1>Időpont foglalása</h1>
+    <h1>{{ isViewOnlyMode ? 'Szabad időpontok áttekintése' : 'Időpont foglalása' }}</h1>
 
     <div *ngIf="error" class="error-message">{{ error }}</div>
+
+    <div *ngIf="isViewOnlyMode" class="step quick-booking-summary">
+      <h2>Megtekintési mód</h2>
+      <p>Ebben a nézetben csak a kiválasztott szakember elérhető időpontjait látja, foglalás nem indítható.</p>
+    </div>
 
     <div *ngIf="isQuickBookingMode() && selectedStaff && selectedConsultation" class="step quick-booking-summary">
       <h2>Gyors foglalás</h2>
@@ -41,7 +46,7 @@
         </div>
       </div>
 
-      <div class="step" *ngIf="selectedStaff && !isQuickBookingMode()">
+      <div class="step" *ngIf="selectedStaff && !isQuickBookingMode() && !isViewOnlyMode">
         <h2>2. lépés: Válasszon szolgáltatást ({{ getStaffName(selectedStaff) }})</h2>
 
         <div class="consultation-selection" *ngIf="getServicesForSelectedStaff().length > 0">
@@ -64,8 +69,8 @@
         <p *ngIf="getServicesForSelectedStaff().length === 0">Ehhez az orvoshoz nincs szolgáltatás beállítva.</p>
       </div>
 
-      <div class="step" *ngIf="selectedConsultation">
-        <h2>{{ isQuickBookingMode() ? '1. lépés: Heti időpontfoglaló nézet' : '3. lépés: Heti időpontfoglaló nézet' }}</h2>
+      <div class="step" *ngIf="selectedConsultation || isViewOnlyMode">
+        <h2>{{ isViewOnlyMode ? 'Elérhető időpontok naptára' : (isQuickBookingMode() ? '1. lépés: Heti időpontfoglaló nézet' : '3. lépés: Heti időpontfoglaló nézet') }}</h2>
         <div class="scheduler-toolbar" *ngIf="availableDates.length > 0">
           <button type="button" class="btn" (click)="goToPreviousWeek()">Előző hét</button>
           <span>{{ getWeekLabel() }}</span>
@@ -117,7 +122,7 @@
         <p *ngIf="availableDates.length === 0">Nincsenek elérhető napok</p>
       </div>
 
-      <div class="step" *ngIf="selectedSlot">
+      <div class="step" *ngIf="selectedSlot && !isViewOnlyMode">
         <h2>{{ isQuickBookingMode() ? '2. lépés: Megjegyzések hozzáadása (nem kötelező)' : '4. lépés: Megjegyzések hozzáadása (nem kötelező)' }}</h2>
         <p class="notes-helper">Írhat rövid előzményt vagy kérdést az orvosnak.</p>
         <textarea
@@ -145,7 +150,7 @@
         </div>
       </div>
 
-      <div *ngIf="selectedSlot && !canBookAppointments && !canCreatePatientBooking" class="error-message" style="margin-bottom: 12px;">
+      <div *ngIf="selectedSlot && !canBookAppointments && !canCreatePatientBooking && !isViewOnlyMode" class="error-message" style="margin-bottom: 12px;">
         Ön most csak megtekintési módban van.
       </div>
 

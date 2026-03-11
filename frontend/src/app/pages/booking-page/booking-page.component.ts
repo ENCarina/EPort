@@ -32,8 +32,11 @@ export class BookingPageComponent implements OnInit {
   preselectedConsultationId: number | null = null;
   autoSelectStaffForConsultation: boolean = false;
   staffSelectionLocked: boolean = false;
+  isViewOnlyMode: boolean = false;
   canBookAppointments: boolean = false;
   canCreatePatientBooking: boolean = false;
+  currentUserId: number | null = null;
+  currentUserRoleId: number | null = null;
   patientName: string = '';
   patientEmail: string = '';
   patientTaj: string = '';
@@ -52,16 +55,11 @@ export class BookingPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.user$.subscribe(user => {
-      const roleId = Number(user?.roleId);
-      this.canBookAppointments = roleId === 0;
-      this.canCreatePatientBooking = roleId === 2 || roleId === 1;
-    });
-
     const staffIdParam = this.route.snapshot.queryParamMap.get('staffId');
     const consultationIdParam = this.route.snapshot.queryParamMap.get('consultationId');
     const autoStaffParam = this.route.snapshot.queryParamMap.get('autoStaff');
     const lockStaffParam = this.route.snapshot.queryParamMap.get('lockStaff');
+    const viewOnlyParam = this.route.snapshot.queryParamMap.get('viewOnly');
     const patientNameParam = this.route.snapshot.queryParamMap.get('patientName');
     const patientEmailParam = this.route.snapshot.queryParamMap.get('patientEmail');
     const patientTajParam = this.route.snapshot.queryParamMap.get('patientTaj');
@@ -69,6 +67,15 @@ export class BookingPageComponent implements OnInit {
     this.preselectedConsultationId = consultationIdParam ? Number(consultationIdParam) : null;
     this.autoSelectStaffForConsultation = autoStaffParam === '1';
     this.staffSelectionLocked = lockStaffParam === '1';
+    this.isViewOnlyMode = viewOnlyParam === '1';
+
+    this.authService.user$.subscribe(user => {
+      const roleId = Number(user?.roleId);
+      this.currentUserId = user?.id ? Number(user.id) : null;
+      this.currentUserRoleId = Number.isNaN(roleId) ? null : roleId;
+      this.canBookAppointments = !this.isViewOnlyMode && roleId === 0;
+      this.canCreatePatientBooking = !this.isViewOnlyMode && (roleId === 2 || roleId === 1);
+    });
 
     if (patientNameParam) this.patientName = patientNameParam;
     if (patientEmailParam) this.patientEmail = patientEmailParam;
@@ -86,6 +93,25 @@ export class BookingPageComponent implements OnInit {
         if (staffData.length > 0) {
           this.staff = staffData;
           this.error = '';
+
+          if (
+            this.currentUserRoleId === 1 &&
+            !this.preselectedStaffId &&
+            !this.preselectedConsultationId &&
+            !this.autoSelectStaffForConsultation &&
+            !this.isViewOnlyMode
+          ) {
+            const doctorStaff = this.staff.find((member: any) =>
+              Number(member?.userId) === this.currentUserId ||
+              Number(member?.User?.id) === this.currentUserId ||
+              Number(member?.user?.id) === this.currentUserId
+            );
+
+            if (doctorStaff?.id) {
+              this.preselectedStaffId = Number(doctorStaff.id);
+              this.staffSelectionLocked = true;
+            }
+          }
 
           if (this.preselectedConsultationId && this.autoSelectStaffForConsultation) {
             this.initQuickBookingFlow(this.preselectedConsultationId);
@@ -124,6 +150,11 @@ export class BookingPageComponent implements OnInit {
     this.dateWindowStartIndex = 0;
     this.daySlotStartIndexMap = {};
     this.error = '';
+
+    if (this.isViewOnlyMode) {
+      this.loadSlotsForSelection(this.selectedStaff.id);
+      return;
+    }
 
     const services = this.getServicesForSelectedStaff();
     if (services.length === 0) {
@@ -184,7 +215,7 @@ export class BookingPageComponent implements OnInit {
     });
   }
 
-  private loadSlotsForSelection(staffId: number, consultationId: number): void {
+  private loadSlotsForSelection(staffId: number, consultationId?: number): void {
     this.slotService.getSlots(staffId, consultationId).subscribe({
       next: (response: any) => {
         console.log('Slots response:', response);
@@ -301,6 +332,11 @@ export class BookingPageComponent implements OnInit {
   }
 
   handleBooking(): void {
+    if (this.isViewOnlyMode) {
+      this.error = 'Ebben a nézetben csak megtekinteni tudja az elérhető időpontokat.';
+      return;
+    }
+
     if (!this.canBookAppointments && !this.canCreatePatientBooking) {
       this.error = 'Ehhez nincs jogosultság. Csak páciens, orvos vagy vezető asszisztens hozhat létre foglalást.';
       return;
